@@ -1,6 +1,6 @@
 <template>
   <div class="active">
-    {{ theRequest }}
+    <!-- {{ theRequest }} -->
     <loading v-if="loadingFlag"></loading>
   </div>
 </template>
@@ -134,13 +134,24 @@ export default {
 
     toJump() {
       console.log("this.theRequest", this.theRequest);
-      this.$router.push({
-        path: "/MemberOrder",
-        query: {
-          userId: this.theRequest.UserId ? this.theRequest.UserId : "",
-          phone: this.theRequest.phone ? this.theRequest.phone : "",
-        },
-      });
+      if (
+        this.theRequest.UserId !== undefined &&
+        this.theRequest.UserId !== null &&
+        this.theRequest.UserId !== ""
+      ) {
+        this.$router.push({
+          path: "/MemberOrder",
+          query: {
+            userId: this.theRequest.UserId ? this.theRequest.UserId : "",
+            phone: this.theRequest.phone ? this.theRequest.phone : "",
+          },
+        });
+      } else {
+        //不是会员
+        this.$router.push({
+          path: "/nonmember",
+        });
+      }
     },
     GetRequest() {
       //获取地址栏所有的参数

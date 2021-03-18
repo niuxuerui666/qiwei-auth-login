@@ -180,6 +180,12 @@ const routes = [
   },
   // 客户画像 end
 
+  
+  {
+    path: "/nonmember",
+    name: "nonmember",
+    component: () => import("../view/errorPage/nonmember.vue"),
+  },
   {
     path: "/401",
     name: "page401",
