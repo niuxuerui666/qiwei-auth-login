@@ -1,148 +1,163 @@
 <template>
   <div class="active">
-    <loading></loading>
+    {{ theRequest }}
+    <loading v-if="loadingFlag"></loading>
   </div>
 </template>
 
 <script>
 import { Notify, Dialog } from "vant";
+import { getMemberPortrait, getMemberRelation } from "../../api/index";
 import loading from "../loading/loading";
+import config from "../../utils/config.js";
 export default {
   created() {
-    this.weixin();
+    this.initSevenFish();
   },
   components: {
     loading,
   },
+  data() {
+    return {
+      loadingFlag: true,
+      theRequest: {}, //地址栏参数
+
+      rowOtherInfo: {}, //列表里的有用数据
+      memberPortrait: {}, //360会员画像数据
+      relation: {}, //360会员关系
+    };
+  },
   methods: {
-    weixin() {
-      var url = window.location.href;
-      var env = process.env.NODE_ENV;
-      var that = this;
-      var host_ = null;
-      if (env == "development") {
-        //开发环境
-        host_ = "/weixinsdk";
-        console.log("开发环境");
-      } else if (env == "production") {
-        //上线环境
-        host_ = "https://www.dstyao.com";
-        console.log("上线环境");
-      }
-      // var host_ = "https://www.dstyao.com";
-      $.ajax({
-        type: "get",
-        url: host_ + "/qy_weixin/jssdk-qy.php?url=" + encodeURIComponent(url), //替换网址，xxx根据自己jssdk文件位置修改
-        dataType: "jsonp",
-        jsonp: "callback",
-        jsonpCallback: "success_jsonpCallback",
-        success: function (data) {
-          wx.config({
-            beta: true, //必须这么写，否则wx.invoke调用形式的jsapi会有问题
-            // debug:true,//开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-            appId: data.appId,
-            timestamp: data.timestamp,
-            nonceStr: data.nonceStr,
-            signature: data.signature,
-            jsApiList: [
-              "getContext",
-              "sendChatMessage", //发送消息
-              "launchMiniprogram", //跳转小程序
-              "getCurExternalContact",
-              "openUserProfile",
-              "openEnterpriseChat",
-              "getCurExternalChat"
-            ],
-          });
-          wx.ready(function () {
-            wx.agentConfig({
-              // debug: true,
-              corpid: data.appId, // 必填，企业微信的corpid，必须与当前登录的企业一致
-              agentid: "1000015", // 必填，企业微信的应用id （e.g. 1000247）
-              timestamp: data.timestamp, // 必填，生成签名的时间戳
-              nonceStr: data.nonceStr, // 必填，生成签名的随机串
-              signature: data.signature, // 必填，签名，见附录-JS-SDK使用权限签名算法
-              jsApiList: [
-                "sendChatMessage",
-                "getContext",
-                "launchMiniprogram", //跳转小程序
-                "getCurExternalContact",
-                "openUserProfile",
-                "openEnterpriseChat",
-                "getCurExternalChat"
-              ], //必填
-              success: function (res) {
-                // 页面跳转
-                that.toJump();
-              },
-              fail: function (err) {},
-            });
-          });
+    initSevenFish() {
+      console.log("会员画像");
+      console.log("window.location-会员画像", window.location);
+
+      var Request = {};
+      Request = this.GetRequest();
+      this.theRequest = { ...Request };
+
+      this.loadingFlag = false;
+
+      this.handleEdit();
+    },
+    //编辑操作    处理会员画像  两个接口和列表里 的整体数据
+    async handleEdit() {
+      const loading = this.$loading({
+        lock: true,
+        text: "正在获取会员画像信息...",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+
+      //1.获取360画像
+      let query = {
+        data: this.theRequest.UserId ? this.theRequest.UserId : "",
+        type: 2,
+      };
+      await getMemberPortrait(query)
+        .then((res) => {
+          if (res.code === "1") {
+            this.memberPortrait = {
+              ...res.data.CustomerInfo,
+            };
+
+            console.log("会员画像数据", res);
+          } else {
+            this.$message.error("获取会员画像数据失败!");
+            loading.close();
+          }
+        })
+        .catch((err) => {
+          this.$message.error("获取会员画像数据失败!");
+          loading.close();
+        });
+
+      //3. 获取360 关系
+
+      console.log("标签信息开始");
+
+      //4.根据德勤 oneId  获取用户标签
+      var timestamp = new Date().getTime();
+      var sign = this.getSign(timestamp);
+      console.log("标签信息开始222");
+      this.$axios({
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+          timestamp,
+          sign,
         },
-        error: function (data) {
-          console.log(data);
+        // url: config.QUOTE_swagger_URI + "/api/user/queryUserTags",
+        url: "https://crm-api-test.111yao.cn:7443/api/user/queryUserTags",
+        method: "get",
+        params: {
+          oneId: this.memberPortrait.OneID__c
+            ? this.memberPortrait.OneID__c
+            : "",
         },
+      })
+        .then((res) => {
+          console.log("标签信息", res);
+
+          loading.close();
+
+          this.toJump(); //跳转至
+
+          // if (res.data.code === 0) {
+          //   let taglist = res.data.data.tags;
+          //   if (taglist && taglist.length && taglist.length > 0) {
+          //     let alltag = [];
+          //     taglist.forEach((value) => {
+          //       let arr = value.value.split(",");
+          //       alltag = alltag.concat([...arr]);
+          //     });
+          //     this.memberPortrait.only_taglist = [...new Set(alltag)];
+          //   } else {
+          //     this.memberPortrait.only_taglist = [];
+          //   }
+          // } else {
+          //   this.$message({
+          //     type: "error",
+          //     message: res.data.msg ? res.data.msg : "获取标签信息失败！",
+          //   });
+          //   this.memberPortrait.only_taglist = [];
+          // }
+        })
+        .catch((err) => {
+          //网络失败
+          this.$message({
+            type: "error",
+            message: "获取标签信息失败！"+JSON.stringify(err),
+          });
+        });
+    },
+
+    toJump() {
+      this.$router.push({
+        path: "/FamilyArchives",
+        query: { userId: this.theRequest.UserId ? this.theRequest.UserId : "" },
       });
     },
-    toJump() {
-      let that = this;
-      if (wx.invoke) {
-        wx.invoke("getContext", {}, function (res) {
-          if (res.err_msg == "getContext:ok") {
-            //返回进入H5页面的入口类型，目前有normal、contact_profile、single_chat_tools、group_chat_tools
-            let entry = res.entry;
-            if (entry === "single_chat_tools") {
-              //从单聊进入
-              wx.invoke("getCurExternalContact", {}, function (res2) {
-                if (res2.err_msg == "getCurExternalContact:ok") {
-                  var userId = res2.userId; //返回当前外部联系人userId
+    GetRequest() {
+      //获取地址栏所有的参数
+      var url = location.href; //获取url中"?"符后的字串
+      var theRequest = new Object();
 
-                  that.$router.push({
-                    path: "/CustomerPortrait",
-                    query:{userId: userId,}
-                  });
-                } else {
-                  //错误处理
-                  // alert("2userId 失败");
-                }
-              });
-              return;
-            } else if (entry === "group_chat_tools") {
-              wx.invoke("getCurExternalChat", {}, function (res3) {
-                if (res3.err_msg == "getCurExternalChat:ok") {
-                  var chatId = res3.chatId; //返回当前客户群的群聊ID
-                  //从群聊进入
-                  that.$router.push({ path: "/FileDetail", query:{chatId: chatId} });
-                } else {
-                  //错误处理
-                }
-              });
-              return;
-            } else if (entry === "contact_profile") {
-              //从联系人详情进入
-            } else if (entry === "normal") {
-              //除以上场景之外进入，例如工作台，聊天会话等
-            }
-          } else {
-            //错误处理
-            Dialog.alert({
-              title: "提示",
-              message: "pos2:页面环境读取失败，请重新进入",
-            }).then(() => {
-              // on close
-              window.location.reload();
-            });
-          }
-        });
-      } else {
-        Dialog.alert({
-          title: "提示",
-          message: "页面环境读取失败，请重新进入",
-        }).then(() => {
-          // on close
-          window.location.reload();
-        });
+      if (url.indexOf("?") != -1) {
+        var num = url.indexOf("?");
+        var str = url.substr(num + 1);
+        let strs = [];
+        strs = str.split("&");
+        for (var i = 0; i < strs.length; i++) {
+          theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+        }
       }
+      console.log(theRequest);
+      return theRequest;
+    },
+    getSign(timeStamp) {
+      var token = "Zz99GmPCGZ3trYebcimb1JrgsrDstnIY";
+      var sign = this.$md5(token + timeStamp);
+      return sign;
     },
   },
 };

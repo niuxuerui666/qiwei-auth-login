@@ -7,8 +7,8 @@
     <!-- 接口加载完毕 -->
     <div v-else>
       <!-- 企微用户 -->
-      <div v-if="user_type === '2'">
-        <img src="'../../assets/microimg.jpg'" />
+      <div v-if="user_type === '2'" class="microimg">
+        <img :src="microimgUrl" />
       </div>
       <!-- 微信用户 -->
       <div v-else>
@@ -17,15 +17,7 @@
           <div @click="toSendUpGrade"><img :src="upGradeUrl" /></div>
         </div>
         <!-- 客户是会员 -->
-        <div v-else>
-          <div class="header-label">
-            <div class="labels">
-              <span class="l-span1"></span>
-              <span class="l-span2">基础属性</span>
-            </div>
-            <!-- 灰条 -->
-            <div class="gray_lines"></div>
-          </div>
+        <div v-else-if="memberId != null" class="isNumber">
           <!-- <div class="header">
           <p
             v-for="(item, index) in sumObj"
@@ -38,6 +30,14 @@
         </div> -->
           <!-- @scroll="toScroll" 第一版不用 -->
           <div class="maincontent" ref="mainScroll">
+            <div class="header-label">
+              <div class="labels">
+                <span class="l-span1"></span>
+                <span class="l-span2">基础属性</span>
+              </div>
+              <!-- 灰条 -->
+              <div class="gray_lines"></div>
+            </div>
             <!-- 个人信息块 -->
             <div class="content" id="baseStr">
               <div class="user">
@@ -65,12 +65,7 @@
               <div class="user_info">
                 <table>
                   <tr>
-                    <td>
-                      <span>会员卡号：</span
-                      >{{
-                        userInfo.MobilePhone__c ? userInfo.MobilePhone__c : "-"
-                      }}
-                    </td>
+                    <td><span>官网会员ID：</span>{{ memberId }}</td>
                     <td>
                       <span>年龄：</span
                       >{{ userInfo.Age__c ? userInfo.Age__c : "-" }}
@@ -87,9 +82,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>
-                      <span>手机号：</span>{{ userPhone ? userPhone : "-" }}
-                    </td>
+                    <td><span>手机号：</span>{{ userPhone }}</td>
                     <td></td>
                   </tr>
                 </table>
@@ -168,20 +161,20 @@
             </div>
             <!-- 灰条 -->
             <div class="gray_line"></div>
+            <div class="header-label">
+              <div class="label">
+                <span class="l-span1"></span>
+                <span class="l-span2">会员标签</span>
+              </div>
+            </div>
             <!-- 第二块标签区 -->
             <div class="content" id="vipLabel">
-              <div class="header-label">
-                <div class="label">
-                  <span class="l-span1"></span>
-                  <span class="l-span2">会员标签</span>
-                </div>
-              </div>
               <div class="label_list">
                 <div class="noLabel" v-if="labelList && labelList.length == 0">
                   该会员暂无标签
                 </div>
                 <div class="list-box" v-for="item in labelList" :key="item.id">
-                  {{ item.IllnessTag__c }}
+                  {{ item }}
                 </div>
               </div>
             </div>
@@ -326,9 +319,11 @@ import {
   getUserTypeId,
   getCustomerName,
   getSideWechatInfo,
+  getCustomerTag,
 } from "../../api/index.js";
 import loading from "../loading/loading";
 import { Notify, Dialog } from "vant";
+import axios from "axios";
 export default {
   data() {
     return {
@@ -337,6 +332,7 @@ export default {
       manUrl: require("../../assets/man.jpg"), //本地性别男
       womanUrl: require("../../assets/woman.jpg"), //本地性别女
       upGradeUrl: require("../../assets/notgold.jpg"), //非会员图片
+      microimgUrl: require("../../assets/microimg.jpg"), //企微图片
       sumObj: [
         //保存头部信息
         // { id: "baseStr", title: "基础属性" },
@@ -349,8 +345,8 @@ export default {
       defaultUrl: require("../../assets/login-bg.jpg"), //默认头像
       labelList: [], //保存会员标签
       userPhone: "", //保存隐藏的手机号
-      memberId: "", //保存会员ID
-      user_type: "", //保存用户类型
+      memberId: "111", //保存会员ID
+      user_type: "111", //保存用户类型
       sideInfo: {}, //用户有关企微的信息
       dstAccount: null, //德生堂公众号
       oneAccount: null, //111公众号
@@ -360,6 +356,31 @@ export default {
     loading,
   },
   created() {
+    // var timestamp = new Date().getTime();
+    // var sign = this.getSign(timestamp);
+    // axios({
+    //   url: "http://crm-api-test.111yao.cn:7001/api/user/queryUserTags",
+    //   method: "get",
+    //   params: {
+    //     oneId: "7369af0a-35c0-4385-a17d-eb4bb5a32b14",
+    //   },
+    //   headers: {
+    //     "Content-Type": "application/json;charset=utf-8",
+    //     timestamp,
+    //     sign,
+    //   },
+    // })
+    //   .then((res) => {
+    //     // if (res.data.msg === "成功") {
+    //     //   that.orderList = res.data.data;
+    //     //   console.log(this.orderList);
+    //     // }
+    //     console.log(res, "cccccc");
+    //     this.dealTags(res.data.data.tags);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err, "err");
+    //   });
     this.getMemberId(this.$route.query.userId); //调用获取信息函数
     this.getAvatarUrl(this.$route.query.userId); //调用获取头像
     this.toGetSideWechatInfo(this.$route.query.userId); //调用获取侧边栏信息
@@ -399,6 +420,7 @@ export default {
     //   }
     // });
   },
+  mounted() {},
   methods: {
     //加密标识
     getSign(timeStamp) {
@@ -406,18 +428,69 @@ export default {
       var sign = this.$md5(token + timeStamp);
       return sign;
     },
+    // 获取标签
+    getCustomerTags(memberId) {
+      var timestamp = new Date().getTime();
+      var sign = this.getSign(timestamp);
+      var that = this;
+      axios({
+        url: "https://crm-api-test.111yao.cn:7443/api/user/queryUserTags",
+        method: "get",
+        params: {
+          oneId: memberId,
+        },
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+          timestamp,
+          sign,
+        },
+      })
+        .then((res) => {
+          // if (res.data.msg === "成功") {
+          //   that.orderList = res.data.data;
+          //   console.log(this.orderList);
+          // }
+          if (res.data.data.tags.length > 0) {
+            this.dealTags(res.data.data.tags);
+          }
+        })
+        .catch((err) => {
+          console.log(err, "err");
+        });
+      // var query = { oneId: memberId };
+      // getCustomerTag(query)
+      //   .then((res => {
+      //     console.log(res,'tagtagtag');
+      //   }))
+      //   .catch((err) => {});
+    },
+    // 处理标签
+    dealTags(val) {
+      var list = [];
+      val.forEach((item, index) => {
+        if (item.value.indexOf(",") != -1) {
+          var arr = item.value.split(",");
+          arr.forEach((items) => {
+            list.push(items);
+          });
+        } else {
+          list.push(item.value);
+        }
+      });
+      var lists = [...new Set(list)];
+      this.labelList = lists;
+    },
     // 获取头像
     getAvatarUrl(userId) {
       var query = { userid: userId };
       var that = this;
       getCustomerName(query).then((res) => {
-        console.log(res.data, "用户信息");
         if (res.code == 0) {
           that.avatarUrl = res.data.avatar;
         } else {
           Notify({
             type: "error",
-            message: "获取客户昵称失败！",
+            message: "获取客户头像失败！",
             duration: 800,
           });
         }
@@ -449,6 +522,16 @@ export default {
         })
         .catch((err) => {});
     },
+    // 正则隐藏获取的手机号
+    hidePhone(phone) {
+      console.log(phone, "userPhoneuserPhone");
+      if (phone == "" || phone == null) {
+        this.userPhone = "-";
+        return;
+      } else {
+        this.userPhone = phone.replace(/(.{5}).*(.{3})/, "$1****$2");
+      }
+    },
     // 获取客户画像数据
     toGetCustomerInfo(userId) {
       getCustomerInfo({
@@ -460,9 +543,11 @@ export default {
       })
         .then((res) => {
           this.userInfo = res.data.CustomerInfo;
-          console.log(this.userInfo, "成功的回调！");
+          console.log(this.userInfo.MobilePhone__c, "成功的回调！");
+          console.log(this.userInfo.OneID__c);
+          this.getCustomerTags(this.userInfo.OneID__c);
+          this.hidePhone(this.userInfo.MobilePhone__c);
           this.labelList = this.userInfo.CustomerTags__r.records;
-          this.hidePhone(this.userInfo.Phone);
           // 关于滚动的显示方法放到这里
           // this.getLength();
         })
@@ -488,15 +573,6 @@ export default {
           this.user_type = res.data.user_type;
         })
         .catch((err) => {});
-    },
-    // 正则隐藏获取的手机号
-    hidePhone(phone) {
-      if (phone == "" || phone == null) {
-        this.userPhone = "暂无电话";
-        return;
-      } else {
-        this.userPhone = phone.replace(/(.{5}).*(.{3})/, "$1****$2");
-      }
     },
     // 点击发送升级会员卡片
     toSendUpGrade() {
@@ -611,6 +687,14 @@ export default {
 [v-cloak] {
   display: none;
 }
+.microimg {
+  width: 100%;
+  height: 100%;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
 .waiting {
   position: fixed;
   width: 100%;
@@ -621,12 +705,15 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 .header-label {
+  padding: 0 10px;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #fff;
+  line-height: 25px;
+  border-bottom: 1px solid #eee;
   .labels {
-    width: 345px;
-    margin: 0 auto;
-    line-height: 25px;
-    border-bottom: 1px solid #eee;
     .l-span1 {
       display: inline-block;
       width: 4px;
@@ -639,8 +726,10 @@ export default {
     }
   }
 }
+
 // 非会员图片样式
 .notNumber {
+  cursor: pointer;
   img {
     width: 100%;
   }
@@ -670,12 +759,12 @@ export default {
 }
 .maincontent {
   width: 100%;
-  height: 580px;
+  height: 100%;
   overflow-y: auto;
   position: fixed;
-  top: 20px;
   z-index: 888;
   margin: 0 auto;
+  background-color: #fff;
 }
 .content {
   width: 345px;
@@ -830,103 +919,103 @@ export default {
     border: 1px solid #4a90e2;
     margin: 0 10px 10px 0;
     border-radius: 4px;
-    min-width: 20px;
+    min-width: 10px;
     height: 19px;
     line-height: 19px;
   }
 }
 // 家庭档案
-.files {
-  table {
-    tr {
-      margin-bottom: 8px;
-    }
-    td {
-      img {
-        width: 44px;
-        height: 44px;
-      }
-      div {
-        font-size: 12px;
-        line-height: 28px;
-      }
-      .f-detail {
-        color: #4a90e2;
-      }
-    }
-  }
-}
+// .files {
+//   table {
+//     tr {
+//       margin-bottom: 8px;
+//     }
+//     td {
+//       img {
+//         width: 44px;
+//         height: 44px;
+//       }
+//       div {
+//         font-size: 12px;
+//         line-height: 28px;
+//       }
+//       .f-detail {
+//         color: #4a90e2;
+//       }
+//     }
+//   }
+// }
 // 订单信息
-.order {
-  margin-bottom: 10px;
-  .o-head {
-    background-color: #edf5ff;
-    border: 1px solid #d2e7ff;
-    font-size: 10px;
-    .h-span1 {
-      color: #9b9b9b;
-    }
-    .h-span2 {
-      color: #4a4a4a;
-    }
-  }
-  .o-body {
-    font-size: 12px;
-    color: #4a4a4a;
-    font-weight: bold;
-    border: 1px solid #d2e7ff;
-    border-top: none;
-    min-height: 30px;
-    tr {
-      height: 30px;
-      td {
-        line-height: 19px;
-      }
-    }
-  }
-}
+// .order {
+//   margin-bottom: 10px;
+//   .o-head {
+//     background-color: #edf5ff;
+//     border: 1px solid #d2e7ff;
+//     font-size: 10px;
+//     .h-span1 {
+//       color: #9b9b9b;
+//     }
+//     .h-span2 {
+//       color: #4a4a4a;
+//     }
+//   }
+//   .o-body {
+//     font-size: 12px;
+//     color: #4a4a4a;
+//     font-weight: bold;
+//     border: 1px solid #d2e7ff;
+//     border-top: none;
+//     min-height: 30px;
+//     tr {
+//       height: 30px;
+//       td {
+//         line-height: 19px;
+//       }
+//     }
+//   }
+// }
 // 跟进记录，时间
-.follow {
-  width: 100%;
-  height: 36px;
-  box-shadow: inset 0 -1px 0 0 #f2f2f2, inset 0 1px 0 0 #f2f2f2;
-  color: #4a4a4a;
-  font-size: 12px;
-  line-height: 36px;
-}
-.follow-table {
-  font-size: 12px;
-  color: #4a4a4a;
-  border: 1px solid #f2f2f2;
-  border-top: none;
-  tr {
-    margin-top: 10px;
-    height: 70px;
-    td {
-      vertical-align: top;
-    }
-  }
-  .d-p2,
-  .d-p3 {
-    color: #9b9b9b;
-  }
-}
-.nomore {
-  font-size: 12px;
-  line-height: 19px;
-  color: #9b9b9b;
-  text-align: center;
-  margin: 20px 0 155px 0;
-}
+// .follow {
+//   width: 100%;
+//   height: 36px;
+//   box-shadow: inset 0 -1px 0 0 #f2f2f2, inset 0 1px 0 0 #f2f2f2;
+//   color: #4a4a4a;
+//   font-size: 12px;
+//   line-height: 36px;
+// }
+// .follow-table {
+//   font-size: 12px;
+//   color: #4a4a4a;
+//   border: 1px solid #f2f2f2;
+//   border-top: none;
+//   tr {
+//     margin-top: 10px;
+//     height: 70px;
+//     td {
+//       vertical-align: top;
+//     }
+//   }
+//   .d-p2,
+//   .d-p3 {
+//     color: #9b9b9b;
+//   }
+// }
+// .nomore {
+//   font-size: 12px;
+//   line-height: 19px;
+//   color: #9b9b9b;
+//   text-align: center;
+//   margin: 20px 0 155px 0;
+// }
 // 底部添加跟进
-.footer {
-  font-size: 12px;
-  text-align: center;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 44px;
-  background-color: #fff;
-  z-index: 999;
-}
+// .footer {
+//   font-size: 12px;
+//   text-align: center;
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+//   height: 44px;
+//   background-color: #fff;
+//   z-index: 999;
+// }
 </style>

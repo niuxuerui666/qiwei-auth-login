@@ -1,4 +1,16 @@
 var glob = require("glob");
+const Timestamp = new Date().getTime();
+// chainWebpack: config => {
+//     if (process.env.NODE_ENV === 'production') {
+//       // 给js和css配置版本号
+//       config.output.filename('js/[name].' + Timestamp + '.js').end();
+//       config.output.chunkFilename('js/[name].' + Timestamp + '.js').end();
+//       config.plugin('extract-css').tap(args => [{
+//         filename: `css/[name].${Timestamp}.css`,
+//         chunkFilename: `css/[name].${Timestamp}.css`
+//       }])
+//     }
+//   },
 
 function getPagesInfo() {
   let pages = {};
@@ -13,6 +25,17 @@ function getPagesInfo() {
       filename: `${title}.html`,
     };
   });
+  chainWebpack: config => {
+    if (process.env.NODE_ENV === 'production') {
+      // 给js和css配置版本号
+      config.output.filename('static/js/[name].' + Timestamp + '.js').end();
+      config.output.chunkFilename('static/js/[name].' + Timestamp + '.js').end();
+      config.plugin('extract-css').tap(args => [{
+        filename: `static/css/[name].${Timestamp}.css`,
+        chunkFilename: `static/css/[name].${Timestamp}.css`
+      }])
+    }
+  };
   return pages;
 }
 module.exports = {
@@ -33,10 +56,10 @@ module.exports = {
         },
       },
       "/testapi": {
-        target: "http://testrouter.111yao.com",
+        target: "https://testrouter.111yao.com",
         changeOrigin: true,
         headers: {
-          Referer: "http://testrouter.111yao.com",
+          Referer: "https://testrouter.111yao.com",
         },
         secure: false,
         pathRewrite: {
@@ -78,24 +101,24 @@ module.exports = {
         },
       },
 
-      // "/crmapitest": {
-      //   target: "http://crm-api-test.111yao.cn:7001",
-      //   changeOrigin: true,
-      //   headers: {
-      //     Referer: "http://crm-api-test.111yao.cn:7001",
-      //   },
-      //   secure: false,
-      //   pathRewrite: {
-      //     "/crmapitest": "",
-      //   },
-      // },
-      '/crmapitest': {
-        target: 'http://crm-api-test.111yao.cn:7001',
+      "/crmapitest": {
+        target: "http://crm-api-test.111yao.cn:7001",
         changeOrigin: true,
+        headers: {
+          Referer: "http://crm-api-test.111yao.cn:7001",
+        },
+        secure: false,
         pathRewrite: {
-          '^/crmapitest': ''
-        }
-      }
+          "/crmapitest": "",
+        },
+      },
+      // '/crmapitest': {
+      //   target: 'http://crm-api-test.111yao.cn:7001',
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/crmapitest': 'http://crm-api-test.111yao.cn:7001'
+      //   }
+      // }
 
     },
     overlay: {
@@ -105,20 +128,20 @@ module.exports = {
   },
   lintOnSave: false,
   //在vue-cli3中使用 amfe-flexible 和 px2rem-loader
-  chainWebpack: (config) => {
-    config.module
-      .rule("scss")
-      .test(/\.scss$/)
-      .oneOf("vue")
-      .use("px2rem-loader")
-      .loader("px2rem-loader")
-      .before("postcss-loader") // this makes it work.
-      .options({
-        remUnit: 37.5,
-        remPrecision: 8
-      })
-      .end();
-  },
+  // chainWebpack: (config) => {
+  //   config.module
+  //     .rule("scss")
+  //     .test(/\.scss$/)
+  //     .oneOf("vue")
+  //     .use("px2rem-loader")
+  //     .loader("px2rem-loader")
+  //     .before("postcss-loader") // this makes it work.
+  //     .options({
+  //       remUnit: 37.5,
+  //       remPrecision: 8
+  //     })
+  //     .end();
+  // },
   //配置多入口
   // pages: {
   //   pageA: {

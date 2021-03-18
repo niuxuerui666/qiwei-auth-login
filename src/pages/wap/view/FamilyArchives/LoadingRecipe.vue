@@ -157,7 +157,7 @@ export default {
   },
   created() {
     this.recodeId = this.$route.query.recodeId;
-    this.getQiMoRecipeList(true, this.recodeId);
+    this.getQiMoRecipeList(false, this.recodeId);
   },
   methods: {
     //加密标识
@@ -176,18 +176,19 @@ export default {
           this.pageNo = this.pageNo + 1;
         }
       }
-      Toast.loading({ message: "加载中...", duration: 600 });
+      Toast.loading({ message: "加载中...", duration: 350 });
       var timestamp = new Date().getTime();
       var sign = this.getSign(timestamp);
       var query = {
         method: "getUserFamilyRemoteListService",
-        record_id: "249", //写死数据
-        // record_id: recordId,
+        // record_id: "249", //写死数据
+        record_id: recordId,
         page: this.pageNo,
         pageSize: "10",
         timestamp,
         sign,
       };
+      console.log(query,'queryquw');
       getRecipeList(query).then((res) => {
         this.loading = false;
         // this.finished = true;
@@ -252,7 +253,7 @@ export default {
     color: #aaa;
   }
   .recipe_list_box {
-    width: 345px;
+    width: 80%;
     margin: 10px auto;
     font-size: 12px;
     background-color: #fff;
@@ -270,7 +271,7 @@ export default {
       tr {
         height: 40px;
         td {
-          text-align: center;
+          text-indent: 20px;
         }
       }
     }

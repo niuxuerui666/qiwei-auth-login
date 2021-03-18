@@ -96,7 +96,8 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  padding: 50px 0;
+  box-sizing: border-box;
+  padding-top: 50px;
   overflow-y: auto;
   overflow-x: hidden;
   font-size: 12px;
@@ -104,11 +105,12 @@ export default {
   .group {
     table {
       width: 100%;
-      padding: 0 15px;
+      padding: 0 10px;
+      background-color: #fff;
     }
   }
   tr {
-    margin: 10px 0;
+    margin: 15px 0;
     img {
       width: 46px;
       height: 46px;
@@ -173,10 +175,9 @@ export default {
 }
 // 没有更多了
 .nomore {
-  font-size: 13px;
+  font-size: 12px;
   line-height: 19px;
   text-align: center;
-  margin: 20px 0 140px 0;
 }
 .noperson {
   width: 100%;

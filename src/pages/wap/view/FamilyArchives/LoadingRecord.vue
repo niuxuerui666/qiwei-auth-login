@@ -139,7 +139,7 @@ export default {
     color: #aaa;
   }
   .return-visit {
-    width: 345px;
+    width: 80%;
     margin: 10px auto;
     font-size: 12px;
     border-radius: 8px;

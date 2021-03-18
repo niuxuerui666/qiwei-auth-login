@@ -195,12 +195,11 @@ const routes = [
     name: "page500",
     component: () => import("../view/errorPage/500.vue"),
   },
-  { path: "*", redirect: "/404", hidden: true },
+    { path: "*", redirect: "/404", hidden: true },
 ];
 
 const router = new VueRouter({
   mode: "hash",
-  // mode: "history",
   base: process.env.BASE_URL,
   routes,
 });

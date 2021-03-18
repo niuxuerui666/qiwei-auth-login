@@ -29,15 +29,16 @@ export default {
   width: 100%;
   z-index: 1000;
   background-color: #fff;
-  border-bottom: 1px solid #f2f6fc;
+  border-bottom: 1px solid #dcdfe6;
   .con-son {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 345px;
-    height: 30px;
+    width: 100%;
+    height: 50px;
     margin: 0 auto;
-    padding: 10px 0;
+    padding: 0 10px;
+    box-sizing: border-box;
   }
 }
 // 会员标签

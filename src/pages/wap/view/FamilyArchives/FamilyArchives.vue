@@ -1,13 +1,12 @@
 <template>
   <div>
     <div v-if="user_type === '' || null">
-      <!-- 下拉选择成员 -->
       <loading></loading>
     </div>
     <div v-else>
       <!-- 企微用户 -->
-      <div v-if="user_type === '2'">
-        <img src="'../../assets/microimg.jpg'" />
+      <div v-if="user_type === '2'" class="microimg">
+        <img :src="microimgUrl" />
       </div>
       <!-- 微信用户 -->
       <div v-else>
@@ -17,418 +16,474 @@
         </div>
         <!-- 客户是会员 -->
         <div v-else>
-          <!-- 家庭档案成员 -->
-          <div class="header">
-            <!-- 下拉选择成员 -->
-            <div class="selectNumber">
-              <span>选择成员:</span>
-              <van-dropdown-menu active-color="#3399ff">
-                <van-dropdown-item
-                  v-model="recordID"
-                  :options="options"
-                  @change="toChangeUser"
-                />
-              </van-dropdown-menu>
-            </div>
+          <div v-if="userInfoList == null">
+            111
+            <loading></loading>
           </div>
-          <div class="toScroll">
-            <!-- 档案 -->
-            <div class="labels">
-              <div class="label">
-                <span class="l-span1"></span>
-                <span class="l-span2">基本资料</span>
-              </div>
-              <div class="toEdit" @click="toEditArchives(userInfo)">
-                <span>编辑</span>
-              </div>
-            </div>
-            <!-- tab切换 -->
-            <div class="texts">
-              <van-tabs v-model="activeTitle" color="#4a90e2">
-                <van-tab title="身份信息">
-                  <div class="txt1">
-                    <table>
-                      <tr>
-                        <td width="120px">与会员关系：</td>
-                        <td>
-                          <p v-if="userInfo.relation == 0">本人</p>
-                          <p v-if="userInfo.relation == 1">父母</p>
-                          <p v-if="userInfo.relation == 2">夫妻</p>
-                          <p v-if="userInfo.relation == 3">子女</p>
-                          <p v-if="userInfo.relation == 4">亲属</p>
-                          <p v-if="userInfo.relation == 5">朋友</p>
-                          <p v-if="userInfo.relation == 6">其他</p>
-                          <p v-if="userInfo.relation == null || ''">-</p>
-                        </td>
-                        <td width="20px"></td>
-                      </tr>
-                      <tr>
-                        <td>真实姓名：</td>
-                        <td>
-                          <p>{{ userInfo.real_name }}</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>身份证号：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.identity_card
-                                ? userInfo.identity_card
-                                : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>手机：</td>
-                        <td>
-                          <p>{{ userInfo.mobile ? userInfo.mobile : "-" }}</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>座机：</td>
-                        <td>
-                          <p>{{ userInfo.tel ? userInfo.tel : "-" }}</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>性别：</td>
-                        <td>
-                          <p v-if="userInfo.sex == 1">男</p>
-                          <p v-if="userInfo.sex == 2">女</p>
-                          <p v-if="userInfo.sex == 3">未知</p>
-                          <p v-if="userInfo.sex == null || ''">-</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>生日：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.birthday &&
-                              userInfo.birthday.split(" ")[0]
-                                ? userInfo.birthday.split(" ")[0]
-                                : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>婚姻状态：</td>
-                        <td>
-                          <p v-if="userInfo.is_marry == 0">未婚</p>
-                          <p v-if="userInfo.is_marry == 1">已婚</p>
-                          <p v-if="userInfo.is_marry == 2">保密</p>
-                          <p v-if="userInfo.is_marry == null || ''">-</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                    </table>
-                  </div>
-                </van-tab>
-                <van-tab title="医疗信息">
-                  <div class="txt2">
-                    <table>
-                      <tr>
-                        <td width="120px">肝功能：</td>
-                        <td>
-                          <p v-if="userInfo.liver_function == 0">异常</p>
-                          <p v-if="userInfo.liver_function == 1">正常</p>
-                          <p v-if="userInfo.liver_function == null || ''">-</p>
-                        </td>
-                        <td width="20px"></td>
-                      </tr>
-                      <tr>
-                        <td>肾功能：</td>
-                        <td>
-                          <p v-if="userInfo.renal_function == 0">异常</p>
-                          <p v-if="userInfo.renal_function == 1">正常</p>
-                          <p v-if="userInfo.renal_function == null || ''">-</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>药物过敏史：</td>
-                        <td>
-                          <p>{{ allergyStr ? allergyStr : "-" }}</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>既往病史：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.previous_history
-                                ? userInfo.previous_history
-                                : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>家族病史：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.family_history
-                                ? userInfo.family_history
-                                : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>月经史：</td>
-                        <td>
-                          <p v-if="userInfo.menses_history == 0">正常</p>
-                          <p v-if="userInfo.menses_history == 1">经量异常</p>
-                          <p v-if="userInfo.menses_history == 2">周期不规律</p>
-                          <p v-if="userInfo.menses_history == null || ''">-</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>孕产史：</td>
-                        <td>
-                          <p v-if="userInfo.pregnancy_history == 0">无</p>
-                          <p v-if="userInfo.pregnancy_history == 2">有</p>
-                          <p v-if="userInfo.pregnancy_history == null || ''">
-                            -
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                    </table>
-                  </div>
-                </van-tab>
-                <van-tab title="生活习惯">
-                  <div class="txt3">
-                    <table>
-                      <tr>
-                        <td width="120px">饮食习惯：</td>
-                        <td>
-                          <p v-if="userInfo.is_marry == 0">均衡</p>
-                          <p v-if="userInfo.is_marry == 1">便淡</p>
-                          <p v-if="userInfo.is_marry == 2">偏油</p>
-                          <p v-if="userInfo.is_marry == 3">便辣</p>
-                          <p v-if="userInfo.is_marry == 4">偏甜</p>
-                          <p v-if="userInfo.is_marry == 5">偏咸</p>
-                          <p v-if="userInfo.is_marry == null || ''">-</p>
-                        </td>
-                        <td width="20px"></td>
-                      </tr>
-                      <tr>
-                        <td>体育锻炼：</td>
-                        <td>
-                          <p v-if="userInfo.sports_frequency == 0">
-                            几乎不运动
-                          </p>
-                          <p v-if="userInfo.sports_frequency == 1">每周1-2次</p>
-                          <p v-if="userInfo.sports_frequency == 2">每周3-4次</p>
-                          <p v-if="userInfo.sports_frequency == 3">每周5-7次</p>
-                          <p v-if="userInfo.sports_frequency == null || ''">
-                            -
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>吸烟情况：</td>
-                        <td>
-                          <p v-if="userInfo.smoke_state == 1">从不吸烟</p>
-                          <p v-if="userInfo.smoke_state == 2">已戒烟</p>
-                          <p v-if="userInfo.smoke_state == 3">偶尔吸烟</p>
-                          <p v-if="userInfo.smoke_state == 4">经常吸烟</p>
-                          <p v-if="userInfo.smoke_state == 5">二手烟困扰</p>
-                          <p v-if="userInfo.smoke_state == null || ''">-</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>烟龄：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.smoke_years ? userInfo.smoke_years : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>戒烟龄：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.smoke_quit_years
-                                ? userInfo.smoke_quit_years
-                                : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>饮酒情况：</td>
-                        <td>
-                          <p v-if="userInfo.drink_state == 1">从不</p>
-                          <p v-if="userInfo.drink_state == 2">偶尔</p>
-                          <p v-if="userInfo.drink_state == 3">经常</p>
-                          <p v-if="userInfo.drink_state == 4">酗酒</p>
-                          <p v-if="userInfo.drink_state == null || ''">-</p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>酒龄：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.drink_years ? userInfo.drink_years : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>戒酒龄：</td>
-                        <td>
-                          <p>
-                            {{
-                              userInfo.drink_quit_years
-                                ? userInfo.drink_quit_years
-                                : "-"
-                            }}
-                          </p>
-                        </td>
-                        <td></td>
-                      </tr>
-                    </table>
-                  </div>
-                </van-tab>
-              </van-tabs>
-            </div>
-            <!-- 处方记录 -->
-            <div class="labels">
-              <div class="label">
-                <span class="l-span1"></span>
-                <span class="l-span2">处方记录</span>
-              </div>
-              <div class="toEdit" @click="toLoadingRecipe">
-                <span>更多&gt;</span>
+          <!-- 无相关档案 -->
+          <div v-else-if="userInfoList.length == 0" class="noarchive">
+            <img :src="noarchive" />
+            <p>没有找到档案</p>
+            <div @click="toAddNewArchives">新建</div>
+          </div>
+          <!-- 有相关档案 -->
+          <div v-else-if="userInfoList.length > 0">
+            <!-- 家庭档案成员 -->
+            <div class="header">
+              <!-- 下拉选择成员 -->
+              <div class="selectNumber">
+                <span>选择成员:</span>
+                <van-dropdown-menu active-color="#3399ff">
+                  <van-dropdown-item
+                    v-model="recordID"
+                    :options="options"
+                    @change="toChangeUser"
+                  />
+                </van-dropdown-menu>
               </div>
             </div>
-            <!-- 处方记录列表 -->
-            <div
-              class="recipe_list"
-              v-if="recipeList && recipeList.length == 0"
-            >
-              <span class="recipe_list_span">该成员暂无处方</span>
-            </div>
-            <div class="recipe_list" v-else>
-              <div
-                class="recipe_list_box"
-                v-for="item in recipeList"
-                :key="item.remote_id"
-                @click="toPopupRecipe(item.remote_num)"
-              >
-                <div class="recipe_box_header"></div>
-                <table>
-                  <tr>
-                    <td width="60%">编码：{{ item.remote_num }}</td>
-                    <td>
-                      <p>医生：{{ item.doctor_name }}</p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>时间：{{ item.remote_date }}</td>
-                    <td>
-                      <p>诊断：{{ item.diagnosis_content }}</p>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-            <!-- 回访记录 -->
-            <div class="labels">
-              <div class="label">
-                <span class="l-span1"></span>
-                <span class="l-span2">回访记录</span>
-              </div>
-              <div class="toEdit" @click="toLoadingReturnVisit">
-                <span>更多&gt;</span>
-              </div>
-            </div>
-            <!-- 回访表 -->
-            <div
-              class="return-list"
-              v-if="returnVisitList && returnVisitList.length == 0"
-            >
-              <span class="return-list_span">该成员暂无回访</span>
-            </div>
-            <div class="return-list" v-else>
-              <div
-                class="return-visit"
-                v-for="item in returnVisitList"
-                :key="item.create_date"
-                @click="toPopupReturn(item)"
-              >
-                <div class="visithead">
-                  <p class="visit_p1">回访时间：{{ item.visit_date }}</p>
-                  <p class="visit_p2">回访人：{{ item.revisiter }}</p>
+            <div class="content">
+              <!-- 档案 -->
+              <div class="labels">
+                <div class="label">
+                  <span class="l-span1"></span>
+                  <span class="l-span2">基本资料</span>
                 </div>
-                <div class="visitable">
+                <div class="toEdit" @click="toEditArchives(userInfo)">
+                  <span>编辑</span>
+                </div>
+              </div>
+              <!-- tab切换 -->
+              <div class="texts">
+                <van-tabs v-model="activeTitle" color="#4a90e2">
+                  <van-tab title="身份信息">
+                    <div class="txt1">
+                      <table>
+                        <tr>
+                          <td width="120px">与会员关系：</td>
+                          <td>
+                            <p v-if="userInfo.relation == 0">本人</p>
+                            <p v-if="userInfo.relation == 1">父母</p>
+                            <p v-if="userInfo.relation == 2">夫妻</p>
+                            <p v-if="userInfo.relation == 3">子女</p>
+                            <p v-if="userInfo.relation == 4">亲属</p>
+                            <p v-if="userInfo.relation == 5">朋友</p>
+                            <p v-if="userInfo.relation == 6">其他</p>
+                            <p v-if="userInfo.relation == null || ''">-</p>
+                          </td>
+                          <td width="20px"></td>
+                        </tr>
+                        <tr>
+                          <td>真实姓名：</td>
+                          <td>
+                            <p>{{ userInfo.real_name }}</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>身份证号：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.identity_card
+                                  ? userInfo.identity_card
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>手机：</td>
+                          <td>
+                            <p>{{ userInfo.mobile ? userInfo.mobile : "-" }}</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>座机：</td>
+                          <td>
+                            <p>{{ userInfo.tel ? userInfo.tel : "-" }}</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>性别：</td>
+                          <td>
+                            <p v-if="userInfo.sex == 1">男</p>
+                            <p v-if="userInfo.sex == 2">女</p>
+                            <p v-if="userInfo.sex == 3">未知</p>
+                            <p v-if="userInfo.sex == null || ''">-</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>生日：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.birthday &&
+                                userInfo.birthday.split(" ")[0]
+                                  ? userInfo.birthday.split(" ")[0]
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>婚姻状态：</td>
+                          <td>
+                            <p v-if="userInfo.is_marry == 0">未婚</p>
+                            <p v-if="userInfo.is_marry == 1">已婚</p>
+                            <p v-if="userInfo.is_marry == 2">保密</p>
+                            <p v-if="userInfo.is_marry == null || ''">-</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </div>
+                  </van-tab>
+                  <van-tab title="医疗信息">
+                    <div class="txt2">
+                      <table>
+                        <tr>
+                          <td width="120px">肝功能：</td>
+                          <td>
+                            <p v-if="userInfo.liver_function == 0">异常</p>
+                            <p v-if="userInfo.liver_function == 1">正常</p>
+                            <p v-if="userInfo.liver_function == null || ''">
+                              -
+                            </p>
+                          </td>
+                          <td width="20px"></td>
+                        </tr>
+                        <tr>
+                          <td>肾功能：</td>
+                          <td>
+                            <p v-if="userInfo.renal_function == 0">异常</p>
+                            <p v-if="userInfo.renal_function == 1">正常</p>
+                            <p v-if="userInfo.renal_function == null || ''">
+                              -
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>药物过敏史：</td>
+                          <td>
+                            <p>{{ allergyStr ? allergyStr : "-" }}</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>既往病史：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.previous_history
+                                  ? userInfo.previous_history
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>家族病史：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.family_history
+                                  ? userInfo.family_history
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr v-if="userInfo.sex == 2">
+                          <td>月经史：</td>
+                          <td>
+                            <p v-if="userInfo.menses_history == 0">正常</p>
+                            <p v-if="userInfo.menses_history == 1">经量异常</p>
+                            <p v-if="userInfo.menses_history == 2">
+                              周期不规律
+                            </p>
+                            <p v-if="userInfo.menses_history == null || ''">
+                              -
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <!-- <tr>
+                          <td>孕产史：</td>
+                          <td>
+                            <p v-if="userInfo.pregnancy_history == 0">无</p>
+                            <p v-if="userInfo.pregnancy_history == 2">有</p>
+                            <p v-if="userInfo.pregnancy_history == null || ''">
+                              -
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr> -->
+                      </table>
+                    </div>
+                  </van-tab>
+                  <van-tab title="生活习惯">
+                    <div class="txt3">
+                      <table>
+                        <tr>
+                          <td width="120px">饮食习惯：</td>
+                          <td>
+                            <p>{{ eatHabitValue ? eatHabitValue : "-" }}</p>
+                          </td>
+                          <td width="20px"></td>
+                        </tr>
+                        <!-- <tr>
+                          <td>体育锻炼：</td>
+                          <td>
+                            <p v-if="userInfo.sports_frequency == 0">
+                              几乎不运动
+                            </p>
+                            <p v-if="userInfo.sports_frequency == 1">
+                              每周1-2次
+                            </p>
+                            <p v-if="userInfo.sports_frequency == 2">
+                              每周3-4次
+                            </p>
+                            <p v-if="userInfo.sports_frequency == 3">
+                              每周5-7次
+                            </p>
+                            <p v-if="userInfo.sports_frequency == null || ''">
+                              -
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr> -->
+                        <tr>
+                          <td>吸烟情况：</td>
+                          <td>
+                            <p v-if="userInfo.smoke_state == 1">从不吸烟</p>
+                            <p v-if="userInfo.smoke_state == 2">已戒烟</p>
+                            <p v-if="userInfo.smoke_state == 3">偶尔吸烟</p>
+                            <p v-if="userInfo.smoke_state == 4">经常吸烟</p>
+                            <p v-if="userInfo.smoke_state == 5">二手烟困扰</p>
+                            <p v-if="userInfo.smoke_state == null || ''">-</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>烟龄：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.smoke_years
+                                  ? userInfo.smoke_years
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>戒烟龄：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.smoke_quit_years
+                                  ? userInfo.smoke_quit_years
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>饮酒情况：</td>
+                          <td>
+                            <p v-if="userInfo.drink_state == 1">从不</p>
+                            <p v-if="userInfo.drink_state == 2">偶尔</p>
+                            <p v-if="userInfo.drink_state == 3">经常</p>
+                            <p v-if="userInfo.drink_state == 4">酗酒</p>
+                            <p v-if="userInfo.drink_state == null || ''">-</p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>酒龄：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.drink_years
+                                  ? userInfo.drink_years
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>戒酒龄：</td>
+                          <td>
+                            <p>
+                              {{
+                                userInfo.drink_quit_years
+                                  ? userInfo.drink_quit_years
+                                  : "-"
+                              }}
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </div>
+                  </van-tab>
+                </van-tabs>
+              </div>
+              <!-- 处方记录 -->
+              <div class="labels">
+                <div class="label">
+                  <span class="l-span1"></span>
+                  <span class="l-span2">处方记录</span>
+                </div>
+                <div
+                  v-if="recipeList.length > 0"
+                  class="toEdit"
+                  @click="toLoadingRecipe"
+                >
+                  <span>更多&gt;</span>
+                </div>
+              </div>
+              <!-- 处方记录列表 -->
+              <div
+                class="recipe_list"
+                v-if="recipeList && recipeList.length == 0"
+              >
+                <span class="recipe_list_span">该成员暂无处方</span>
+              </div>
+              <div class="recipe_list" v-else>
+                <div
+                  class="recipe_list_box"
+                  v-for="item in recipeList"
+                  :key="item.remote_id"
+                  @click="toPopupRecipe(item.remote_num)"
+                >
+                  <div class="recipe_box_header"></div>
                   <table>
                     <tr>
-                      <td width="55%">
-                        <p>
-                          <span>回访类型：</span>
-                          <span v-if="item.content == 1">健康照顾方案大方</span>
-                          <span v-if="item.content == 2">健康照顾方案小方</span>
-                          <span v-if="item.content == 3">慢病回访</span>
-                          <span v-if="item.content == 4">活动回访</span>
-                          <span v-if="item.content == 5">器械售后回访</span>
-                          <span v-if="item.content == 6">近效期回访</span>
-                          <span v-if="item.content == 7">久未交易回访</span>
-                          <span v-if="item.content == 8">新办会员回访</span>
-                          <span v-if="item.content == 9"
-                            >商品会员生命周期回访</span
-                          >
-                          <span v-if="item.content == 10">阿胶回访</span>
-                        </p>
+                      <td width="60%">编码：{{ item.remote_num }}</td>
+                      <td>
+                        <p>医生：{{ item.doctor_name }}</p>
                       </td>
-                      <td>姓名：{{ archivesName }}</td>
                     </tr>
                     <tr>
+                      <td>时间：{{ item.remote_date }}</td>
                       <td>
-                        <p>
-                          健康问题：{{
-                            item.healthproblem ? item.healthproblem : "身体健康"
-                          }}
-                        </p>
+                        <p>诊断：{{ item.diagnosis_content }}</p>
                       </td>
-                      <td></td>
                     </tr>
                   </table>
                 </div>
               </div>
+              <!-- 回访记录 -->
+              <div class="labels">
+                <div class="label">
+                  <span class="l-span1"></span>
+                  <span class="l-span2">回访记录</span>
+                </div>
+                <div
+                  v-if="returnVisitList.length > 0"
+                  class="toEdit"
+                  @click="toLoadingReturnVisit"
+                >
+                  <span>更多&gt;</span>
+                </div>
+              </div>
+              <!-- 回访表 -->
+              <div
+                class="return-list"
+                v-if="returnVisitList && returnVisitList.length == 0"
+              >
+                <span class="return-list_span">该成员暂无回访</span>
+              </div>
+              <div class="return-list" v-else>
+                <div
+                  class="return-visit"
+                  v-for="item in returnVisitList"
+                  :key="item.create_date"
+                  @click="toPopupReturn(item)"
+                >
+                  <div class="visithead">
+                    <p class="visit_p1">回访时间：{{ item.create_date }}</p>
+                    <p class="visit_p2">回访人：{{ item.revisiter }}</p>
+                  </div>
+                  <div class="visitable">
+                    <table>
+                      <tr>
+                        <td width="55%">
+                          <p>
+                            <span>回访类型：</span>
+                            <span v-if="item.content == 1"
+                              >健康照顾方案大方</span
+                            >
+                            <span v-if="item.content == 2"
+                              >健康照顾方案小方</span
+                            >
+                            <span v-if="item.content == 3">慢病回访</span>
+                            <span v-if="item.content == 4">活动回访</span>
+                            <span v-if="item.content == 5">器械售后回访</span>
+                            <span v-if="item.content == 6">近效期回访</span>
+                            <span v-if="item.content == 7">久未交易回访</span>
+                            <span v-if="item.content == 8">新办会员回访</span>
+                            <span v-if="item.content == 9"
+                              >商品会员生命周期回访</span
+                            >
+                            <span v-if="item.content == 10">阿胶回访</span>
+                            <span v-if="item.content === null || ''">-</span>
+                          </p>
+                        </td>
+                        <td>姓名：{{ archivesName }}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <p>
+                            <span>接通类型：</span>
+                            <span v-if="item.through_type == '1'">接通</span>
+                            <span v-if="item.through_type == '2'">拒接</span>
+                            <span v-if="item.through_type == '3'"
+                              >接通后挂断</span
+                            >
+                            <span v-if="item.through_type == '4'">停机</span>
+                            <span v-if="item.through_type == '5'">关机</span>
+                            <span v-if="item.through_type == '6'"
+                              >无法接通</span
+                            >
+                            <span v-if="item.through_type == '7'"
+                              >无人接听</span
+                            >
+                            <span v-if="item.through_type == '8'">空号</span>
+                            <span v-if="item.through_type == '9'"
+                              >号码有误</span
+                            >
+                            <span v-if="item.through_type == null || ''"
+                              >-</span
+                            >
+                          </p>
+                        </td>
+                        <td></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="nomore">没有更多了</div>
             </div>
-            <div class="nomore">没有更多了</div>
-          </div>
-          <!-- 底部浮动 -->
-          <div class="footer">
-            <div @click="toAddNewReturn">新增回访</div>
-            <div @click="toAddNewArchives">新增档案</div>
+            <!-- 底部浮动 -->
+            <div class="footer">
+              <div @click="toAddNewReturn">新增回访</div>
+              <div @click="toAddNewArchives">新增档案</div>
+            </div>
           </div>
         </div>
       </div>
@@ -509,7 +564,7 @@
         <div class="return-table">
           <table>
             <tr>
-              <td width="45%">回访类型：</td>
+              <td width="35%">回访类型：</td>
               <td>
                 <p>
                   <span v-if="returnDetail.content == '1'"
@@ -571,7 +626,7 @@
               <td>有无监测器械：</td>
               <td>
                 <p v-if="returnDetail.is_detection == '1'">有监测器械</p>
-                <p v-if="returnDetail.is_detection == '0'">无监测器械</p>
+                <p v-if="returnDetail.is_detection == '2'">无监测器械</p>
                 <p v-if="returnDetail.is_detection == null || ''">-</p>
               </td>
             </tr>
@@ -579,7 +634,7 @@
               <td>是否长期服药：</td>
               <td>
                 <p v-if="returnDetail.is_medicine == '1'">是</p>
-                <p v-if="returnDetail.is_medicine == '0'">否</p>
+                <p v-if="returnDetail.is_medicine == '2'">否</p>
                 <p v-if="returnDetail.is_medicine == null || ''">-</p>
               </td>
             </tr>
@@ -591,7 +646,7 @@
                 <p v-if="returnDetail.has_adversereactions == null || ''">-</p>
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td>服药依从性：</td>
               <td>
                 <p v-if="returnDetail.medcompliance == '1'">规律</p>
@@ -599,7 +654,7 @@
                 <p v-if="returnDetail.medcompliance == '3'">不服药</p>
                 <p v-if="returnDetail.medcompliance == null || ''">-</p>
               </td>
-            </tr>
+            </tr> -->
             <tr>
               <td>病情缓解情况：</td>
               <td>
@@ -609,15 +664,15 @@
                 <p v-if="returnDetail.situation == null || ''">-</p>
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td>自我监测：</td>
               <td>
                 <p v-if="returnDetail.selfmonitoring == '1'">是</p>
                 <p v-if="returnDetail.selfmonitoring == '2'">否</p>
                 <p v-if="returnDetail.selfmonitoring == null || ''">-</p>
               </td>
-            </tr>
-            <tr>
+            </tr> -->
+            <!-- <tr>
               <td>日均吸氧时间：</td>
               <td>
                 {{
@@ -626,11 +681,11 @@
                     : "-"
                 }}
               </td>
-            </tr>
-            <tr>
+            </tr> -->
+            <!-- <tr>
               <td>脉搏：</td>
               <td>{{ returnDetail.pulse ? returnDetail.pulse : "-" }}</td>
-            </tr>
+            </tr> -->
             <tr>
               <td>餐前血糖：</td>
               <td>
@@ -689,7 +744,7 @@
                 }}
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td>医生结论：</td>
               <td>
                 {{
@@ -698,10 +753,26 @@
                     : "-"
                 }}
               </td>
-            </tr>
+            </tr> -->
             <tr>
               <td>回访小结：</td>
               <td>{{ returnDetail.summary ? returnDetail.summary : "-" }}</td>
+            </tr>
+            <tr>
+              <div>回访药品：</div>
+            </tr>
+            <tr v-if="drugList.length == 0" class="drug_list drug_lists">
+              <td>此次回访暂无药品</td>
+            </tr>
+            <tr
+              v-else
+              v-for="item in drugList"
+              :key="item.goods_name"
+              class="drug_list"
+            >
+              <td>{{ item.goods_name }}</td>
+              <td>{{ item.spec }}</td>
+              <td>{{ item.usage }}</td>
             </tr>
           </table>
         </div>
@@ -731,7 +802,7 @@
 
 <script>
 import loading from "../loading/loading";
-import { Toast } from "vant";
+import { Toast, Notify, Dialog } from "vant";
 import {
   getUserHomeList,
   getUserTypeId,
@@ -747,99 +818,38 @@ export default {
     return {
       nim: require("../../assets/microimg.jpg"),
       nim: require("../../assets/notgold.jpg"),
+      microimgUrl: require("../../assets/microimg.jpg"), //企微图片
+      noarchive: require("../../assets/noarchive.png"), //企微图片
       index: 0, //控制标签展示
       memberid: "111", //存放会员ID
-      user_type: "222", //保存用户类型
+      user_type: "111", //保存用户类型
+      userId: "", //企微用户ID
       Selected: "",
-      recordID: null, //下拉选框
+      recordID: null, //档案ID
       activeTitle: 0, //控制tab标签内容切换
       options: [],
-      userInfoList: [], //保存所有用户列表
+      userInfoList: null, //保存所有用户列表
       userInfo: {}, //保存要展示用户信息
       allergyStr: "", //保存过敏史的字符串
       upGradeUrl: require("../../assets/notgold.jpg"), //非会员图片
       recipeList: [], //处方订单列表
       returnVisitList: [], //回访列表
+      drugList: [], //药品列表
       archivesName: "", //档案人姓名
       archiveDetail: {}, //弹框展示档案详情
       returnDetail: {}, //弹框展示回访详情
       isShowArchiveDetail: false, //控制显示处方详情
       isShowReturnDetail: false, //控制显示回访详情
+      eatHabitValue: "", //保存饮食习惯的值
     };
   },
   created() {
-    this.getUserId(this.$route.query.userId);
+    // this.getUserId(this.$route.query.userId);
     // this.getUserRelationMember("3238016");
-    // var timestamp = new Date().getTime();
-    // var sign = this.getSign(timestamp);
-    // var query = {
-    //   // method: "getUserFamilyRemoteListService",
-    //   method: "getUserFamilyVisitListService",
-    //   record_id: "249",
-    //   page: "1",
-    //   pageSize: "5",
-    //   timestamp,
-    //   sign,
-    // };
-    // getRecipeList(query)
-    //   .then((res) => {
-    //     console.log(res.dataList, "shuju");
-    //   })
-    //   .catch((err) => {
-    //     console.log(err, "cuowu");
-    //   });
+    this.memberid = this.$route.query.userId;
+    this.getUserRelationMember(this.$route.query.userId);
   },
   methods: {
-    // 点击发送升级会员卡片
-    toSendUpGrade() {
-      let that = this;
-      // alert(JSON.stringify(obj))
-      that.globalLoading = true;
-      if (wx.invoke) {
-        wx.invoke(
-          "sendChatMessage",
-          {
-            msgtype: "miniprogram", //消息类型，必填
-            miniprogram: {
-              appid: "wx0be4163af4e66222", //小程序的appid
-              // title: "这是小程序标题", //小程序消息的title
-              // imgUrl:
-              // "https://img.zdfei.com/static/image/goods//201808/64f0a1299ad5bc1c7fc464074c467c0b.jpg", //小程序消息的封面图。必须带http或者https协议头，否则报错 $apiName$:fail invalid imgUrl
-              // page: "/pages/Index/index.html", //小程序消息打开后的路径，注意要以.html作为后缀，否则在微信端打开会提示找不到页面
-              title: "注册成为金卡会员，拥有私属家庭医生，领取惊喜大礼包",
-              imgUrl:
-                "https://111yao.oss-cn-beijing.aliyuncs.com/webFile/html5/Bronchitis/images/1.jpg",
-              page:
-                "/pages/TobindingHtml/index.html?type=GetUserInfos&bingdingType=bingding_dst_let",
-            },
-          },
-          function (res) {
-            that.globalLoading = false;
-            if (res.err_msg == "sendChatMessage:ok") {
-              //发送成功
-              Notify({ type: "success", message: "发送中", duration: 500 });
-            } else {
-              Dialog.alert({
-                title: "提示",
-                message: "sorry1~ 发送失败,请刷新页面重试!",
-              }).then(() => {
-                // on close
-                window.location.reload();
-              });
-            }
-          }
-        );
-      } else {
-        that.globalLoading = false;
-        Dialog.alert({
-          title: "提示",
-          message: "sorry2~ 发送失败,请刷新页面重试!",
-        }).then(() => {
-          // on close
-          window.location.reload();
-        });
-      }
-    },
     // 弹窗展示处方详情
     toPopupRecipe(rId) {
       var timestamp = new Date().getTime();
@@ -869,21 +879,44 @@ export default {
       this.isShowReturnDetail = false;
     },
     // 弹窗展示回访详情
-    toPopupReturn(obj) {
-      this.returnDetail = obj;
+    toPopupReturn(val) {
+      this.returnDetail = val;
+      // 切割药品
+      this.drugList = [];
+      if (val.goods_name != null) {
+        if (val.goods_name.indexOf("|") != -1) {
+          var name_arr = val.goods_name.split("|");
+          var spec_arr = val.spec.split("|");
+          var usage_arr = val.usage.split("|");
+          name_arr.forEach((item, index) => {
+            var obj = {};
+            obj.goods_name = item;
+            obj.spec = spec_arr[index];
+            obj.usage = usage_arr[index];
+            this.drugList.push(obj);
+          });
+        } else {
+          var obj = {};
+          obj.goods_name = val.goods_name;
+          obj.spec = val.spec;
+          obj.usage = val.usage;
+          this.drugList.push(obj);
+        }
+        console.log(this.drugList, "this.drugList");
+      }
       this.isShowReturnDetail = true;
       console.log(this.isShowReturnDetail, "this.issh");
     },
-    // 显示五条处方记录 archives_id传入档案ID
+    // 显示3条处方记录 archives_id传入档案ID
     togetRecipeList(recordId) {
       var timestamp = new Date().getTime();
       var sign = this.getSign(timestamp);
       var query = {
         method: "getUserFamilyRemoteListService",
-        record_id: "249", //写死数据
-        // record_id: recordId,
+        // record_id: "249", //写死数据
+        record_id: recordId,
         page: "1",
-        pageSize: "5",
+        pageSize: "3",
         timestamp,
         sign,
       };
@@ -895,7 +928,7 @@ export default {
         })
         .catch((err) => {});
     },
-    // 显示五条回访记录 archives_id传入档案ID
+    // 显示3条回访记录 archives_id传入档案ID
     togetReturnVisitList(recordId) {
       var timestamp = new Date().getTime();
       var sign = this.getSign(timestamp);
@@ -904,7 +937,7 @@ export default {
         // record_id: "249", //写死数据
         record_id: recordId,
         page: "1",
-        pageSize: "5",
+        pageSize: "3",
         timestamp,
         sign,
       };
@@ -922,30 +955,40 @@ export default {
       var sign = this.getSign(timestamp);
       var query = {
         method: "getUserHomeList",
-        // memberid: 3238016, //测试用固定写法
+        // memberid: "3238016", //测试用固定写法`
         memberid: memberid, //动态传入
         timestamp,
         sign,
       };
       getUserHomeList(query)
         .then((res) => {
+          var statusCode = res.statusCode;
+          if (statusCode != 1) {
+            var message = res.message;
+            Toast.fail({ message: message, duration: 2000 });
+            return false;
+          }
           var arr = res.dataList;
           this.userInfoList = arr;
           this.userInfo = arr[0]; //接受用户信息
-          console.log(this.userInfo);
+          console.log(arr[0].archives_id);
           this.archivesName = this.userInfo.real_name;
           this.recordID = this.userInfo.archives_id;
-          this.togetRecipeList(this.userInfo.archives_id); //获取处方
-          this.togetReturnVisitList(this.userInfo.archives_id); //获取回访
+          this.togetRecipeList(arr[0].archives_id); //获取处方
+          this.togetReturnVisitList(arr[0].archives_id); //获取回访
           arr.forEach((item) => {
             var obj = {};
             obj.text = item.real_name;
             obj.value = item.archives_id;
             this.options.push(obj);
           });
+          console.log(res, ".....xxxxxx");
           this.dealMedicineType(this.userInfo.allergy);
+          this.dealEatHabit(this.userInfo.eat_habit);
         })
         .catch((err) => {
+          console.log(err);
+          console.log("xxx3");
           console.log(err, "列表cache");
         });
     },
@@ -960,12 +1003,16 @@ export default {
         sign,
       };
       getUserTypeId(query).then((res) => {
-        that.user_type = res.data.user_type;
-        if (res.data.member_id !== "") {
-          that.memberid = res.data.member_id;
-          that.getUserRelationMember(res.data.member_id);
+        if (res.code === "1") {
+          that.user_type = res.data.user_type;
+          if (res.data.member_id != "") {
+            that.memberid = res.data.member_id;
+            that.getUserRelationMember(res.data.member_id);
+          } else {
+            // that.user_type = "2";
+          }
         } else {
-          // that.user_type = "2";
+          this.$router.push({ path: "/500" });
         }
       });
     },
@@ -998,13 +1045,57 @@ export default {
       });
       this.allergyStr = string;
     },
+    // 处理饮食习惯
+    dealEatHabit(val) {
+      if (val != null && val != "" && val.indexOf(",") != -1) {
+        var arr = val.split(",");
+        var str = "";
+        arr.forEach((item) => {
+          if (item == "0") {
+            str += "均衡,";
+          } else if (item == "1") {
+            str += "偏淡,";
+          } else if (item == "2") {
+            str += "偏油,";
+          } else if (item == "3") {
+            str += "偏辣,";
+          } else if (item == "4") {
+            str += "偏甜,";
+          } else if (item == "5") {
+            str += "偏咸,";
+          }
+        });
+        this.eatHabitValue = str.slice(0, -1);
+      } else {
+        if (val == "0") {
+          this.eatHabitValue = "均衡";
+        } else if (val == "1") {
+          this.eatHabitValue = "偏淡";
+        } else if (val == "2") {
+          this.eatHabitValue = "偏油";
+        } else if (val == "3") {
+          this.eatHabitValue = "偏辣";
+        } else if (val == "4") {
+          this.eatHabitValue = "偏甜";
+        } else if (val == "5") {
+          this.eatHabitValue = "偏咸";
+        }
+      }
+    },
+    // 改变userinfo
     toChangeUser(val) {
+      console.log(val, "xxxx");
       this.userInfoList.forEach((item) => {
         if (val == item.archives_id) {
           this.userInfo = item;
         }
       });
       this.archivesName = this.userInfo.real_name;
+      this.recordID = this.userInfo.archives_id;
+      this.togetRecipeList(this.userInfo.archives_id); //获取处方
+      this.togetReturnVisitList(this.userInfo.archives_id); //获取回访
+      this.dealMedicineType(this.userInfo.allergy);
+      this.dealEatHabit(this.userInfo.eat_habit);
       this.dealMedicineType(this.userInfo.allergy);
     },
     //加密标识
@@ -1025,7 +1116,10 @@ export default {
     },
     // 跳转新增家庭档案
     toAddNewArchives() {
-      this.$router.push("/AddNewArchives");
+      this.$router.push({
+        path: "/AddNewArchives",
+        query: { memberId: this.memberid },
+      });
     },
     //跳转新增回访
     toAddNewReturn() {
@@ -1040,8 +1134,8 @@ export default {
       if (this.recipeList && this.recipeList.length > 0) {
         this.$router.push({
           path: "/LoadingRecipe",
-          // query: { recodeId: this.userInfo.archives_id },
-          query: { recodeId: "249" },
+          query: { recodeId: this.userInfo.archives_id },
+          // query: { recodeId: "249" },
         });
       } else {
         Toast.fail({ message: "暂无处方", duration: 550 });
@@ -1061,16 +1155,105 @@ export default {
         Toast.fail({ message: "暂无回访", duration: 550 });
       }
     },
+    // 点击发送升级会员卡片
+    toSendUpGrade() {
+      let that = this;
+      // alert(JSON.stringify(obj))
+      that.globalLoading = true;
+      if (wx.invoke) {
+        wx.invoke(
+          "sendChatMessage",
+          {
+            msgtype: "miniprogram", //消息类型，必填
+            miniprogram: {
+              appid: "wx0be4163af4e66222", //小程序的appid
+              // title: "这是小程序标题", //小程序消息的title
+              // imgUrl:
+              // "https://img.zdfei.com/static/image/goods//201808/64f0a1299ad5bc1c7fc464074c467c0b.jpg", //小程序消息的封面图。必须带http或者https协议头，否则报错 $apiName$:fail invalid imgUrl
+              // page: "/pages/Index/index.html", //小程序消息打开后的路径，注意要以.html作为后缀，否则在微信端打开会提示找不到页面
+              title: "注册成为金卡会员，拥有私属家庭医生，领取惊喜大礼包",
+              imgUrl:
+                "https://111yao.oss-cn-beijing.aliyuncs.com/webFile/html5/Bronchitis/images/1.jpg",
+              page:
+                "/pages/TobindingHtml/index.html?type=GetUserInfos&bingdingType=bingding_dst_let",
+            },
+          },
+          function(res) {
+            that.globalLoading = false;
+            if (res.err_msg == "sendChatMessage:ok") {
+              //发送成功
+              Notify({ type: "success", message: "发送中", duration: 500 });
+            } else {
+              Dialog.alert({
+                title: "提示",
+                message: "sorry1~ 发送失败,请刷新页面重试!",
+              }).then(() => {
+                // on close
+                window.location.reload();
+              });
+            }
+          }
+        );
+      } else {
+        that.globalLoading = false;
+        Dialog.alert({
+          title: "提示",
+          message: "sorry2~ 发送失败,请刷新页面重试!",
+        }).then(() => {
+          // on close
+          window.location.reload();
+        });
+      }
+    },
   },
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
+[v-cloak] {
+  display: none;
+}
+.microimg {
+  width: 100%;
+  height: 100%;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+// 没有档案
+.noarchive {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  width: 50%;
+  height: 30%;
+  font-size: 12px;
+  text-align: center;
+
+  p {
+    margin: 8px 0 13px 0;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  div {
+    background-color: #249cd3;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #fff;
+  }
+}
+
 .header {
   width: 100%;
   height: 50px;
   box-sizing: border-box;
-  border-bottom: 1px solid #f2f6fc;
+  border-bottom: 1px solid #dcdfe6;
   font-size: 14px;
   display: flex;
   justify-content: space-between;
@@ -1093,9 +1276,11 @@ export default {
     align-items: center;
     > span {
       display: inline-block;
-      font-size: 15px;
+      font-size: 14px;
       color: #333;
-      font-weight: bold;
+      font-weight: 550;
+      height: 20px;
+      line-height: 19px;
     }
     /deep/ .van-dropdown-menu__bar {
       height: 24px;
@@ -1108,12 +1293,13 @@ export default {
 }
 // 非会员图片样式
 .notNumber {
+  cursor: pointer;
   img {
     width: 100%;
   }
 }
 // 超出滚动显示
-.toScroll {
+.content {
   box-sizing: border-box;
   padding: 50px 0;
   width: 100%;
@@ -1162,17 +1348,18 @@ export default {
 // 标签切换内容
 .texts {
   width: 100%;
-  min-height: 270px;
+  min-height: 240px;
   margin: 10px auto;
   font-size: 12px;
   background-color: #fff;
   table {
-    width: 305px;
+    width: 75%;
     margin: 0 auto;
+    padding: 15px 0;
     // background-color: #fff;
   }
   tr {
-    height: 30px;
+    height: 50px;
     p {
       color: #808080;
     }
@@ -1194,12 +1381,14 @@ export default {
   background-color: #f7f8fa;
   overflow: hidden;
   .recipe_list_span {
-    padding-left: 15px;
     font-size: 12px;
     color: #aaa;
+    display: block;
+    text-align: center;
+    line-height: 50px;
   }
   .recipe_list_box {
-    width: 345px;
+    width: 80%;
     margin: 10px auto;
     font-size: 12px;
     background-color: #fff;
@@ -1217,7 +1406,7 @@ export default {
       tr {
         height: 40px;
         td {
-          text-align: center;
+          text-indent: 20px;
         }
       }
     }
@@ -1322,8 +1511,8 @@ export default {
         line-height: 15px;
         text-align: center;
         border-radius: 50%;
-        border: 1px solid #bbb;
-        color: #bbb;
+        border: 1px solid #666;
+        color: #666;
         display: block;
       }
     }
@@ -1338,10 +1527,27 @@ export default {
     .return-table {
       width: 100%;
       font-size: 12px;
+      .drug_list,
+      .drug_lists {
+        width: 300px;
+        font-size: 10px;
+        color: #666;
+        height: 15px;
+        td {
+          width: 33%;
+          line-height: 14px;
+          padding-left: 3px;
+        }
+      }
+      .drug_lists {
+        td {
+          width: 50%;
+        }
+      }
       tr {
         height: 30px;
         td {
-          line-height: 30px;
+          line-height: 26px;
           img {
             width: 20%;
           }
@@ -1357,47 +1563,53 @@ export default {
   background-color: #f7f8fa;
   overflow: hidden;
   .return-list_span {
-    padding-left: 15px;
     font-size: 12px;
     color: #aaa;
+    width: 100%;
+    display: block;
+    text-align: center;
+    line-height: 50px;
   }
-  .return-visit {
-    width: 345px;
-    margin: 10px auto;
-    font-size: 12px;
-    border-radius: 8px;
-    box-shadow: 0 0 4px #0000001a;
-    background-color: #fff;
-    .visithead {
-      width: 100%;
-      height: 30px;
-      border-bottom: 1px dashed #ebedf0;
-      background-color: #f1f1f1;
-      display: flex;
-      justify-content: space-around;
-      p {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 30px;
-      }
-      .visit_p1 {
-        width: 50%;
-      }
-      .visit_p2 {
-        width: 30%;
-      }
+}
+.return-visit {
+  width: 80%;
+  margin: 10px auto;
+  font-size: 12px;
+  border-radius: 8px;
+  box-shadow: 0 0 4px #0000001a;
+  background-color: #fff;
+  .visithead {
+    width: 100%;
+    height: 30px;
+    border-bottom: 1px dashed #ebedf0;
+    background-color: #f1f1f1;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    box-sizing: border-box;
+    p {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 30px;
     }
-    .visitable {
-      width: 100%;
-      box-sizing: border-box;
+    .visit_p1 {
+      width: 50%;
     }
-    table {
-      width: 100%;
-      td {
-        text-align: center;
-        height: 35px;
-      }
+    .visit_p2 {
+      width: 30%;
+    }
+  }
+  .visitable {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  table {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 10px;
+    td {
+      height: 35px;
     }
   }
 }
@@ -1422,7 +1634,9 @@ export default {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  border-top: 1px solid #dcdfe6;
   div {
+    cursor: pointer;
     width: 35%;
     height: 30px;
     text-align: center;

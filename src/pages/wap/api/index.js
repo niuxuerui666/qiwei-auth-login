@@ -39,6 +39,7 @@ if (env == "development") {
 export const getQiMoGoodsList = (query) => {
   return request({
     url: host_ + "/sltRouter",
+    // url: "https://router.111yao.com/sltRouter",
     method: "post",
     data: qs.stringify(query),
   });
@@ -46,6 +47,7 @@ export const getQiMoGoodsList = (query) => {
 export const getOnlinePlanListService = (query) => {
   return request({
     url: host_ + "/sltRouter",
+    // url: "https://router.111yao.com/sltRouter",
     method: "post",
     data: qs.stringify(query),
   });
@@ -68,6 +70,15 @@ export const getSideWechatInfo = (query) => {
     params: query,
   });
 };
+// 获取会员标签
+export const getCustomerTag = (query) => {
+  return request({
+    url: "http://crm-api-test.111yao.cn:7001/v2/api-docs/api/user/queryUserTags",
+    // url:' https://foreign-test.111yao.cn:8443/get/crm/userinfo?data=253737375&type=1&wx_id=2',
+    method: "get",
+    params: query,
+  });
+};
 // 获取群聊详情
 export const getWechatDetail = (query) => {
   return request({
@@ -80,17 +91,18 @@ export const getWechatDetail = (query) => {
 // 搜索疾病
 export const toSearchIllnessList = (query) => {
   return request({
-    url: host_ + "/sltRouter",
-    method: "get",
-    params: query,
+    url: host_1 + "/sltRouter",
+    method: "post",
+    data: qs.stringify(query),
   });
 };
 // 搜索药品
 export const toSearchMedicineList = (query) => {
   return request({
-    url: host_ + "/sltRouter",
+    url: host_1 + "/sltRouter",
     method: "get",
     params: query,
+
   });
 };
 
@@ -139,8 +151,8 @@ export const addNewArchives = (query) => {
 export const addNewReturn = (query) => {
   return request({
     url: host_1 + "/sltRouter",
-    method: "get",
-    params: query,
+    method: "post",
+    data: qs.stringify(query),
   });
 };
 // 查看处方
@@ -151,7 +163,7 @@ export const getRecipeList = (query) => {
     params: query,
   });
 };
-// 查看处方
+// 查看
 export const getReturnList = (query) => {
   return request({
     url: host_1 + "/sltRouter",
@@ -178,11 +190,23 @@ export const getMemberOrder = (query) => {
 };
 
 
-//reqNowLoginUse
-export const reqNowLoginUser = (query) => {
+
+
+
+//1.获取crm360用户数据  会员画像
+export const getMemberPortrait = query => {
   return request({
-    url: host_2 + "/wecom/auth/query",
-    method: "get",
-    params: query,
+      url: host_2 + '/get/crm/userinfo',
+      method: 'get',
+      params: query
+  });
+};
+
+//2.查询360画像会员关系
+export const getMemberRelation = query => {
+  return request({
+      url: host_2 + '/get/weChat/weChatData',
+      method: 'get',
+      params: query
   });
 };

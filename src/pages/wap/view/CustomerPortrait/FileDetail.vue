@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div class="content">
-      <div class="groupcontent">
+    <div v-if="memberList.length==0">
+      <loading></loading>
+    </div>
+    <div class="content" v-else>
+      <div class="groupcontent" >
         <div class="group">
           <div class="headImg"><img src="../../assets/u101.jpg" alt="" /></div>
           <div class="groupname">
@@ -77,10 +80,12 @@
 
 <script>
 import Child from "../../common/header";
+import loading from "../loading/loading";
 import { getWechatDetail } from "../../api";
 export default {
   components: {
     child: Child,
+    loading,
   },
   data() {
     return {
@@ -121,6 +126,8 @@ export default {
                 this.memberList.splice(index,1);
               }
             });
+          }else{
+            this.$router.push({path:"/500"})
           }
         })
         .catch((err) => {});

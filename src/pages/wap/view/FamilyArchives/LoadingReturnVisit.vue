@@ -12,66 +12,61 @@
         <span class="return-list_span">该成员暂无回访</span>
       </div>
       <div class="return-list" v-else>
-        <van-list
-          finished-text="没有更多了"
-          @load="onLoad"
-          v-model="loading"
-          :finished="finished"
+        <div
+          class="return-visit"
+          v-for="item in returnVisitList"
+          :key="item.create_date"
+          @click="toPopupReturn(item)"
         >
-          <div
-            class="return-visit"
-            v-for="item in returnVisitList"
-            :key="item.create_date"
-            @click="toPopupReturn(item)"
-          >
-            <div class="visithead">
-              <p class="visit_p1">回访时间：{{ item.visit_date }}</p>
-              <p class="visit_p2">回访人：{{ item.revisiter }}</p>
-            </div>
-            <div class="visitable">
-              <table>
-                <tr>
-                  <td width="55%">
-                    <p>
-                      <span>回访类型：</span>
-                      <span v-if="item.content === 1">健康照顾方案大方</span>
-                      <span v-if="item.content === 2">健康照顾方案小方</span>
-                      <span v-if="item.content === 3">慢病回访</span>
-                      <span v-if="item.content === 4">活动回访</span>
-                      <span v-if="item.content === 5">器械售后回访</span>
-                      <span v-if="item.content === 6">近效期回访</span>
-                      <span v-if="item.content === 7">久未交易回访</span>
-                      <span v-if="item.content === 8">新办会员回访</span>
-                      <span v-if="item.content === 9"
-                        >商品会员生命周期回访</span
-                      >
-                      <span v-if="item.content === 10">阿胶回访</span>
-                    </p>
-                  </td>
-                  <td>
-                    姓名：{{
-                      archivesName && archivesName ? archivesName : "-"
-                    }}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p>
-                      健康问题：{{
-                        item.healthproblem ? item.healthproblem : "身体健康"
-                      }}
-                    </p>
-                  </td>
-                  <td></td>
-                </tr>
-              </table>
-            </div>
+          <div class="visithead">
+            <p class="visit_p1">回访时间：{{ item.create_date }}</p>
+            <p class="visit_p2">回访人：{{ item.revisiter }}</p>
           </div>
-        </van-list>
+          <div class="visitable">
+            <table>
+              <tr>
+                <td width="55%">
+                  <p>
+                    <span>回访类型：</span>
+                    <span v-if="item.content == 1">健康照顾方案大方</span>
+                    <span v-if="item.content == 2">健康照顾方案小方</span>
+                    <span v-if="item.content == 3">慢病回访</span>
+                    <span v-if="item.content == 4">活动回访</span>
+                    <span v-if="item.content == 5">器械售后回访</span>
+                    <span v-if="item.content == 6">近效期回访</span>
+                    <span v-if="item.content == 7">久未交易回访</span>
+                    <span v-if="item.content == 8">新办会员回访</span>
+                    <span v-if="item.content == 9">商品会员生命周期回访</span>
+                    <span v-if="item.content == 10">阿胶回访</span>
+                  </p>
+                </td>
+                <td>姓名：{{ archivesName }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <p>
+                    <span>接通类型：</span>
+                    <span v-if="item.through_type == '1'">接通</span>
+                    <span v-if="item.through_type == '2'">拒接</span>
+                    <span v-if="item.through_type == '3'">接通后挂断</span>
+                    <span v-if="item.through_type == '4'">停机</span>
+                    <span v-if="item.through_type == '5'">关机</span>
+                    <span v-if="item.through_type == '6'">无法接通</span>
+                    <span v-if="item.through_type == '7'">无人接听</span>
+                    <span v-if="item.through_type == '8'">空号</span>
+                    <span v-if="item.through_type == '9'">号码有误</span>
+                    <span v-if="item.through_type == null || ''">-</span>
+                  </p>
+                </td>
+                <td></td>
+              </tr>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
     <!-- 回访记录详情弹框 -->
-    <div class="return-wrapper" v-if="isShowReturnDetail"> 
+    <div class="return-wrapper" v-if="isShowReturnDetail">
       <div class="return-block">
         <div class="close-return" @click="closeReturn">
           <span>&times;</span>
@@ -80,18 +75,24 @@
         <div class="return-table">
           <table>
             <tr>
-              <td width=45%>回访类型：</td>
+              <td width="45%">回访类型：</td>
               <td>
                 <p>
-                  <span v-if="returnDetail.content == '1'">健康照顾方案大方</span>
-                  <span v-if="returnDetail.content == '2'">健康照顾方案小方</span>
+                  <span v-if="returnDetail.content == '1'"
+                    >健康照顾方案大方</span
+                  >
+                  <span v-if="returnDetail.content == '2'"
+                    >健康照顾方案小方</span
+                  >
                   <span v-if="returnDetail.content == '3'">慢病回访</span>
                   <span v-if="returnDetail.content == '4'">活动回访</span>
                   <span v-if="returnDetail.content == '5'">器械售后回访</span>
                   <span v-if="returnDetail.content == '6'">近效期回访</span>
                   <span v-if="returnDetail.content == '7'">久未交易回访</span>
                   <span v-if="returnDetail.content == '8'">新办会员回访</span>
-                  <span v-if="returnDetail.content == '9'">商品会员生命周期回访</span>
+                  <span v-if="returnDetail.content == '9'"
+                    >商品会员生命周期回访</span
+                  >
                   <span v-if="returnDetail.content == '10'">阿胶回访</span>
                   <span v-if="returnDetail.content == null || ''">-</span>
                 </p>
@@ -103,7 +104,9 @@
                 <p>
                   <span v-if="returnDetail.through_type == '1'">接通</span>
                   <span v-if="returnDetail.through_type == '2'">拒接</span>
-                  <span v-if="returnDetail.through_type == '3'">接通后挂断</span>
+                  <span v-if="returnDetail.through_type == '3'"
+                    >接通后挂断</span
+                  >
                   <span v-if="returnDetail.through_type == '4'">停机</span>
                   <span v-if="returnDetail.through_type == '5'">关机</span>
                   <span v-if="returnDetail.through_type == '6'">无法接通</span>
@@ -133,92 +136,154 @@
             <tr>
               <td>有无监测器械：</td>
               <td>
-                <p v-if="returnDetail.is_detection=='1'">有监测器械</p>
-                <p v-if="returnDetail.is_detection=='0'">无监测器械</p>
-                <p v-if="returnDetail.is_detection==null||''">-</p>
+                <p v-if="returnDetail.is_detection == '1'">有监测器械</p>
+                <p v-if="returnDetail.is_detection == '0'">无监测器械</p>
+                <p v-if="returnDetail.is_detection == null || ''">-</p>
               </td>
             </tr>
             <tr>
               <td>是否长期服药：</td>
               <td>
-                <p v-if="returnDetail.is_medicine=='1'">是</p>
-                <p v-if="returnDetail.is_medicine=='0'">否</p>
-                <p v-if="returnDetail.is_medicine==null||''">-</p>
+                <p v-if="returnDetail.is_medicine == '1'">是</p>
+                <p v-if="returnDetail.is_medicine == '0'">否</p>
+                <p v-if="returnDetail.is_medicine == null || ''">-</p>
               </td>
             </tr>
             <tr>
               <td>有无不良反应：</td>
               <td>
-                <p v-if="returnDetail.has_adversereactions=='1'">有</p>
-                <p v-if="returnDetail.has_adversereactions=='2'">无</p>
-                <p v-if="returnDetail.has_adversereactions==null||''">-</p>
+                <p v-if="returnDetail.has_adversereactions == '1'">有</p>
+                <p v-if="returnDetail.has_adversereactions == '2'">无</p>
+                <p v-if="returnDetail.has_adversereactions == null || ''">-</p>
               </td>
             </tr>
             <tr>
               <td>服药依从性：</td>
               <td>
-                <p v-if="returnDetail.medcompliance=='1'">规律</p>
-                <p v-if="returnDetail.medcompliance=='2'">间断</p>
-                <p v-if="returnDetail.medcompliance=='3'">不服药</p>
-                <p v-if="returnDetail.medcompliance==null||''">-</p>
+                <p v-if="returnDetail.medcompliance == '1'">规律</p>
+                <p v-if="returnDetail.medcompliance == '2'">间断</p>
+                <p v-if="returnDetail.medcompliance == '3'">不服药</p>
+                <p v-if="returnDetail.medcompliance == null || ''">-</p>
               </td>
             </tr>
             <tr>
               <td>病情缓解情况：</td>
               <td>
-                <p v-if="returnDetail.situation=='1'">缓解</p>
-                <p v-if="returnDetail.situation=='2'">无明显变化</p>
-                <p v-if="returnDetail.situation=='3'">加重</p>
-                <p v-if="returnDetail.situation==null||''">-</p>
+                <p v-if="returnDetail.situation == '1'">缓解</p>
+                <p v-if="returnDetail.situation == '2'">无明显变化</p>
+                <p v-if="returnDetail.situation == '3'">加重</p>
+                <p v-if="returnDetail.situation == null || ''">-</p>
               </td>
             </tr>
             <tr>
               <td>自我监测：</td>
               <td>
-                <p v-if="returnDetail.selfmonitoring=='1'">是</p>
-                <p v-if="returnDetail.selfmonitoring=='2'">否</p>
-                <p v-if="returnDetail.selfmonitoring==null||''">-</p>
+                <p v-if="returnDetail.selfmonitoring == '1'">是</p>
+                <p v-if="returnDetail.selfmonitoring == '2'">否</p>
+                <p v-if="returnDetail.selfmonitoring == null || ''">-</p>
               </td>
             </tr>
             <tr>
               <td>日均吸氧时间：</td>
-              <td>{{returnDetail.oxygeninhalation_time?returnDetail.oxygeninhalation_time:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.oxygeninhalation_time
+                    ? returnDetail.oxygeninhalation_time
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>脉搏：</td>
-              <td>{{returnDetail.pulse?returnDetail.pulse:'-'}}</td>
+              <td>{{ returnDetail.pulse ? returnDetail.pulse : "-" }}</td>
             </tr>
             <tr>
               <td>餐前血糖：</td>
-              <td>{{returnDetail.before_bloodsugar?returnDetail.before_bloodsugar:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.before_bloodsugar
+                    ? returnDetail.before_bloodsugar
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>餐后血糖：</td>
-              <td>{{returnDetail.after_bloodsugar?returnDetail.after_bloodsugar:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.after_bloodsugar
+                    ? returnDetail.after_bloodsugar
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>高压值：</td>
-              <td>{{returnDetail. bloodpressure_h?returnDetail. bloodpressure_h:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.bloodpressure_h
+                    ? returnDetail.bloodpressure_h
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>低压值：</td>
-              <td>{{returnDetail.bloodpressure_l?returnDetail.bloodpressure_l:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.bloodpressure_l
+                    ? returnDetail.bloodpressure_l
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>不满意描述：</td>
-              <td>{{returnDetail.meet_describe?returnDetail.meet_describe:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.meet_describe ? returnDetail.meet_describe : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>意见描述：</td>
-              <td>{{returnDetail.opinion_describe?returnDetail.opinion_describe:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.opinion_describe
+                    ? returnDetail.opinion_describe
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>医生结论：</td>
-              <td>{{returnDetail.doctorconclusion?returnDetail.doctorconclusion:'-'}}</td>
+              <td>
+                {{
+                  returnDetail.doctorconclusion
+                    ? returnDetail.doctorconclusion
+                    : "-"
+                }}
+              </td>
             </tr>
             <tr>
               <td>回访小结：</td>
-              <td>{{returnDetail.summary?returnDetail.summary:'-'}}</td>
+              <td>{{ returnDetail.summary ? returnDetail.summary : "-" }}</td>
+            </tr>
+            <tr>
+              <div>回访药品：</div>
+            </tr>
+            <tr v-if="drugList.length == 0" class="drug_list drug_lists">
+              <td>此次回访暂无药品</td>
+            </tr>
+            <tr
+              v-else
+              v-for="item in drugList"
+              :key="item.goods_name"
+              class="drug_list"
+            >
+              <td>{{ item.goods_name }}</td>
+              <td>{{ item.spec }}</td>
+              <td>{{ item.usage }}</td>
             </tr>
           </table>
         </div>
@@ -261,14 +326,15 @@ export default {
       finished: false, //判断是否加载完成
       loading: false, //
       pageNo: 1, //页码
-      archivesName:"",//回访人
+      archivesName: "", //回访人
       isShowReturnDetail: false, //控制显示回访详情
+      drugList: [], //药品列表
     };
   },
   created() {
     this.recodeId = this.$route.query.recodeId;
     this.archivesName = this.$route.query.archivesName;
-    this.togetReturnVisitList(true, this.recodeId);
+    this.togetReturnVisitList(false, this.recodeId);
   },
   methods: {
     //加密标识
@@ -303,8 +369,31 @@ export default {
       this.isShowReturnDetail = false;
     },
     // 弹窗展示回访详情
-    toPopupReturn(obj) {
-      this.returnDetail = obj;
+    toPopupReturn(val) {
+      this.returnDetail = val;
+      // 切割药品
+      this.drugList = [];
+      if (val.goods_name != null) {
+        if (val.goods_name.indexOf("|") != -1) {
+          var name_arr = val.goods_name.split("|");
+          var spec_arr = val.spec.split("|");
+          var usage_arr = val.usage.split("|");
+          name_arr.forEach((item, index) => {
+            var obj = {};
+            obj.goods_name = item;
+            obj.spec = spec_arr[index];
+            obj.usage = usage_arr[index];
+            this.drugList.push(obj);
+          });
+        } else {
+          var obj = {};
+          obj.goods_name = val.goods_name;
+          obj.spec = val.spec;
+          obj.usage = val.usage;
+          this.drugList.push(obj);
+        }
+        console.log(this.drugList, "this.drugList");
+      }
       this.isShowReturnDetail = true;
       console.log(this.isShowReturnDetail, "this.issh");
     },
@@ -318,19 +407,21 @@ export default {
           this.pageNo = this.pageNo + 1;
         }
       }
-      Toast.loading({ message: "加载中...", duration: 600 });
+      Toast.loading({ message: "加载中...", duration: 350 });
       var timestamp = new Date().getTime();
       var sign = this.getSign(timestamp);
       var query = {
-        method: "getUserFamilyRemoteListService",
-        record_id: "249", //写死数据
-        // record_id: recordId,
+        method: "getUserFamilyVisitListService",
+        // record_id: "280", //写死数据
+        record_id: recordId,
         page: this.pageNo,
         pageSize: "10",
         timestamp,
         sign,
       };
+
       getReturnList(query).then((res) => {
+        console.log(res, "");
         this.loading = false;
         // this.finished = true;
         if ((res.statusCode = 1)) {
@@ -346,6 +437,7 @@ export default {
             this.finished = true;
           }
         }
+        console.log(this.returnVisitList, "this.returnVisitList");
       });
     },
   },
@@ -386,8 +478,8 @@ export default {
         line-height: 15px;
         text-align: center;
         border-radius: 50%;
-        border: 1px solid #bbb;
-        color: #bbb;
+        border: 1px solid #666;
+        color: #666;
         display: block;
       }
     }
@@ -402,6 +494,23 @@ export default {
     .return-table {
       width: 100%;
       font-size: 12px;
+      .drug_list,
+      .drug_lists {
+        width: 300px;
+        font-size: 10px;
+        color: #666;
+        height: 15px;
+        td {
+          width: 33%;
+          line-height: 14px;
+          padding-left: 3px;
+        }
+      }
+      .drug_lists {
+        td {
+          width: 50%;
+        }
+      }
       tr {
         height: 30px;
         td {
@@ -425,7 +534,7 @@ export default {
     color: #aaa;
   }
   .return-visit {
-    width: 345px;
+    width: 80%;
     margin: 10px auto;
     font-size: 12px;
     border-radius: 8px;

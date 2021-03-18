@@ -9,257 +9,290 @@
       <div class="gray_line"></div>
     </div>
     <div class="content">
-      <van-form>
-        <van-field
-          readonly
-          clickable
-          name="picker"
-          :value="returnContentValue"
-          label="回访内容:"
-          placeholder="请选择"
-          @click="returnContent = true"
-        />
-        <van-popup v-model="returnContent" position="bottom">
-          <van-picker
-            show-toolbar
-            :columns="returnContentColumn"
-            @confirm="getReturnContentValue"
-            @cancel="returnContent = false"
-          />
-        </van-popup>
-        <van-field
-          readonly
-          clickable
-          name="picker"
-          :value="connectTypeValue"
-          label="接通类型:"
-          placeholder="请选择"
-          @click="connectType = true"
-        />
-        <van-popup v-model="connectType" position="bottom">
-          <van-picker
-            show-toolbar
-            :columns="connectTypeColumn"
-            @confirm="getConnectTypeValue"
-            @cancel="connectType = false"
-          />
-        </van-popup>
-        <van-field
-          v-model="medicineDrugUsing"
-          name="用药禁忌"
-          label="用药禁忌:"
-          placeholder="请填写用药禁忌"
-          :rules="[{ required: true, message: '请填写用药禁忌' }]"
-        />
-        <van-field
-          readonly
-          clickable
-          name="picker"
-          :value="illnessReleaseValue"
-          label="病情缓解情况:"
-          placeholder="请选择"
-          @click="illnessRelease = true"
-        />
-        <van-popup v-model="illnessRelease" position="bottom">
-          <van-picker
-            show-toolbar
-            :columns="illnessReleaseColumn"
-            @confirm="getIllnessReleaseValue"
-            @cancel="illnessRelease = false"
-          />
-        </van-popup>
-        <van-field name="ifSatisfaction" label="服务满意与否:">
-          <template #input>
-            <van-radio-group v-model="ifSatisfaction" direction="horizontal">
-              <van-radio name="1">满意</van-radio>
-              <van-radio name="2">不满意</van-radio>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <div v-if="ifSatisfaction == '2'">
+      <div class="content-scroll">
+        <van-form>
           <van-field
-            v-model="satisfactionText"
-            name="服务不满意描述"
-            label="服务不满意描述:"
-            placeholder="请填写不满意描述"
-            :rules="[{ required: true, message: '请填写不满意描述' }]"
+            readonly
+            clickable
+            required
+            name="picker"
+            :value="returnContentValue"
+            label="回访内容:"
+            placeholder="请选择"
+            @click="returnContent = true"
           />
-        </div>
-        <van-field name="ifExistOpinion" label="是否有意见:">
-          <template #input>
-            <van-radio-group v-model="ifExistOpinion" direction="horizontal">
-              <van-radio name="1">是</van-radio>
-              <van-radio name="2">否</van-radio>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <div v-if="ifExistOpinion == '1'">
+          <van-popup v-model="returnContent" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="returnContentColumn"
+              @confirm="getReturnContentValue"
+              @cancel="returnContent = false"
+            />
+          </van-popup>
           <van-field
-            v-model="existOpinionText"
-            name="意见内容"
-            label="意见内容描述:"
-            placeholder="请填写意见内容"
-            :rules="[{ required: true, message: '请填写意见内容' }]"
+            readonly
+            clickable
+            required
+            name="picker"
+            :value="connectTypeValue"
+            label="接通类型:"
+            placeholder="请选择"
+            @click="connectType = true"
           />
-        </div>
-        <van-field
-          v-model="clientFeedback"
-          name="顾客反馈的其他内容"
-          label="顾客反馈的其他内容:"
-          placeholder="请填写顾客反馈的其他内容"
-          :rules="[{ required: true, message: '请填写顾客反馈的其他内容' }]"
-        />
-        <van-field name="ifExistMonitor" label="是否有监测器械:">
-          <template #input>
-            <van-radio-group v-model="ifExistMonitor" direction="horizontal">
-              <van-radio name="1">是</van-radio>
-              <van-radio name="2">否</van-radio>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <van-field name="ifLongTimeRely" label="是否长期服药:">
-          <template #input>
-            <van-radio-group v-model="ifLongTimeRely" direction="horizontal">
-              <van-radio name="1">是</van-radio>
-              <van-radio name="2">否</van-radio>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <van-field name="ifUntowardEffect" label="有无药品不良反应:">
-          <template #input>
-            <van-radio-group v-model="ifUntowardEffect" direction="horizontal">
-              <van-radio name="1">是</van-radio>
-              <van-radio name="2">否</van-radio>
-            </van-radio-group>
-          </template>
-        </van-field>
-        <div v-if="ifUntowardEffect == '1'">
+          <van-popup v-model="connectType" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="connectTypeColumn"
+              @confirm="getConnectTypeValue"
+              @cancel="connectType = false"
+            />
+          </van-popup>
           <van-field
-            v-model="untowardEffectText"
-            name="具体不良反应"
-            label="具体不良反应描述:"
-            placeholder="请填写具体不良反应"
-            :rules="[{ required: true, message: '请填写具体不良反应' }]"
-          />
-        </div>
-        <van-field
-          readonly
-          clickable
-          name="picker"
-          :value="communicateHobbyValue"
-          label="沟通偏好:"
-          placeholder="请选择"
-          @click="communicateHobby = true"
-        />
-        <van-popup v-model="communicateHobby" position="bottom">
-          <van-picker
-            show-toolbar
-            :columns="communicateHobbyColumn"
-            @confirm="getCommunicateHobbyValue"
-            @cancel="communicateHobby = false"
-          />
-        </van-popup>
-        <van-cell
-          title="最近复诊时间:"
-          :value="againVisitDate"
-          color="#b2b3b3"
-          @click="onAgainShow = true"
-        />
-        <van-popup v-model="onAgainShow" position="bottom">
-          <van-datetime-picker
-            color="#169bd5"
-            type="date"
-            :min-date="minDate"
-            :max-date="maxDate"
-            @confirm="onAgainVisitDate"
-            @cancel="onAgainShow = false"
-          />
-        </van-popup>
-        <van-field
-          v-model="otherIllness"
-          name="其他伴随疾病"
-          label="其他伴随疾病:"
-          :placeholder="
-            yetAddIllnessList.length == 0 ? '请输入疾病关键词' : otherIllness
-          "
-          :rules="[{ required: true, message: '请填写其他伴随疾病' }]"
-          @focus="openPopUp"
-        />
-        <div class="bloodData">
-          <van-field
-            v-model="highBloodPressure"
-            name="高压"
-            label="高压:"
-            placeholder="请填写高压"
-            maxlength="3"
-            :rules="[{ required: true, message: '请填写高压' }]"
+            v-model="saveNanme"
+            required
+            name="回访人"
+            label="回访人:"
+            placeholder="请填写回访人的姓名"
           />
           <van-field
-            v-model="beforeEatFood"
-            name="餐前血糖"
-            label="餐前血糖:"
-            placeholder="餐前血糖"
-            maxlength="3"
-            :rules="[{ required: true, message: '请填写餐前血糖' }]"
+            v-model="medicineDrugUsing"
+            name="用药禁忌"
+            label="用药禁忌:"
+            placeholder="请填写用药禁忌"
+            rows="1"
+            autosize
+            type="textarea"
+            maxlength="500"
+            show-word-limit
           />
           <van-field
-            v-model="lowerBloodPressure"
-            name="低压"
-            label="低压:"
-            placeholder="请填写低压"
-            maxlength="3"
-            :rules="[{ required: true, message: '请填写低压' }]"
+            readonly
+            clickable
+            name="picker"
+            :value="illnessReleaseValue"
+            label="病情缓解情况:"
+            placeholder="请选择"
+            @click="illnessRelease = true"
           />
+          <van-popup v-model="illnessRelease" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="illnessReleaseColumn"
+              @confirm="getIllnessReleaseValue"
+              @cancel="illnessRelease = false"
+            />
+          </van-popup>
+          <van-field name="ifSatisfaction" label="服务满意与否:">
+            <template #input>
+              <van-radio-group v-model="ifSatisfaction" direction="horizontal">
+                <van-radio name="1">满意</van-radio>
+                <van-radio name="2">不满意</van-radio>
+              </van-radio-group>
+            </template>
+          </van-field>
+          <div v-if="ifSatisfaction == '2'">
+            <van-field
+              v-model="satisfactionText"
+              name="服务不满意描述"
+              label="服务不满意描述:"
+              placeholder="请填写不满意描述"
+              rows="1"
+              autosize
+              type="textarea"
+              maxlength="500"
+              show-word-limit
+            />
+          </div>
+          <van-field name="ifExistOpinion" label="是否有意见:">
+            <template #input>
+              <van-radio-group v-model="ifExistOpinion" direction="horizontal">
+                <van-radio name="1">是</van-radio>
+                <van-radio name="2">否</van-radio>
+              </van-radio-group>
+            </template>
+          </van-field>
+          <div v-if="ifExistOpinion == '1'">
+            <van-field
+              v-model="existOpinionText"
+              name="意见内容"
+              label="意见内容描述:"
+              placeholder="请填写意见内容"
+              rows="1"
+              autosize
+              type="textarea"
+              maxlength="500"
+              show-word-limit
+            />
+          </div>
           <van-field
-            v-model="laterEatFood"
-            name="餐后血糖"
-            label="餐后血糖:"
-            placeholder="餐后血糖"
-            maxlength="3"
-            :rules="[{ required: true, message: '请填写餐后血糖' }]"
+            v-model="clientFeedback"
+            name="顾客反馈的其他内容"
+            label="顾客反馈的其他内容:"
+            placeholder="请填写顾客反馈的其他内容"
+            rows="1"
+            autosize
+            type="textarea"
+            maxlength="500"
+            show-word-limit
           />
-        </div>
-        <van-field
-          v-model="returnVisitConclusion"
-          name="回访小结"
-          label="回访小结:"
-          placeholder="回访小结"
-          :rules="[{ required: true, message: '请填写回访小结' }]"
-        />
-        <div class="addMedicine" @click="getAddMedicineList">
-          <span>+</span><span>添加药品</span>
-        </div>
-        <div class="medicineList">
-          <div
-            class="boxList"
-            v-for="(item, index) in addMedicineList"
-            :key="item.id"
-          >
-            <div class="list-head">
-              <div class="head-left">
-                <span>{{ index + 1 }}、</span><span>{{ item.goodsName }}</span>
+          <van-field name="ifExistMonitor" label="是否有监测器械:">
+            <template #input>
+              <van-radio-group v-model="ifExistMonitor" direction="horizontal">
+                <van-radio name="1">是</van-radio>
+                <van-radio name="2">否</van-radio>
+              </van-radio-group>
+            </template>
+          </van-field>
+          <van-field name="ifLongTimeRely" label="是否长期服药:">
+            <template #input>
+              <van-radio-group v-model="ifLongTimeRely" direction="horizontal">
+                <van-radio name="1">是</van-radio>
+                <van-radio name="2">否</van-radio>
+              </van-radio-group>
+            </template>
+          </van-field>
+          <van-field name="ifUntowardEffect" label="有无药品不良反应:">
+            <template #input>
+              <van-radio-group
+                v-model="ifUntowardEffect"
+                direction="horizontal"
+              >
+                <van-radio name="1">是</van-radio>
+                <van-radio name="2">否</van-radio>
+              </van-radio-group>
+            </template>
+          </van-field>
+          <div v-if="ifUntowardEffect == '1'">
+            <van-field
+              v-model="untowardEffectText"
+              name="具体不良反应"
+              label="具体不良反应描述:"
+              placeholder="请填写具体不良反应"
+              rows="1"
+              autosize
+              type="textarea"
+              maxlength="500"
+              show-word-limit
+            />
+          </div>
+          <van-field
+            readonly
+            clickable
+            name="picker"
+            :value="communicateHobbyValue"
+            label="沟通偏好:"
+            placeholder="请选择"
+            @click="communicateHobby = true"
+          />
+          <van-popup v-model="communicateHobby" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="communicateHobbyColumn"
+              @confirm="getCommunicateHobbyValue"
+              @cancel="communicateHobby = false"
+            />
+          </van-popup>
+          <van-cell
+            title="最近复诊时间:"
+            :value="againVisitDate"
+            color="#b2b3b3"
+            @click="onAgainShow = true"
+          />
+          <van-popup v-model="onAgainShow" position="bottom">
+            <van-datetime-picker
+              color="#169bd5"
+              type="date"
+              :min-date="minDate"
+              :max-date="maxDate"
+              @confirm="onAgainVisitDate"
+              @cancel="onAgainShow = false"
+            />
+          </van-popup>
+          <van-field
+            v-model="otherIllness"
+            name="其他伴随疾病"
+            label="其他伴随疾病:"
+            :placeholder="
+              yetAddIllnessList.length == 0 ? '请输入疾病关键词' : otherIllness
+            "
+            @focus="openPopUp"
+          />
+          <div class="bloodData">
+            <van-field
+              v-model="bloodpressure_h"
+              name="高压"
+              label="高压:"
+              placeholder="高压值(mmHg)"
+              maxlength="3"
+            />
+            <van-field
+              v-model="before_bloodsugar"
+              name="餐前血糖"
+              label="餐前血糖:"
+              placeholder="餐前(mmol/L)"
+              maxlength="4"
+            />
+            <van-field
+              v-model="bloodpressure_l"
+              name="低压"
+              label="低压:"
+              placeholder="低压值(mmHg)"
+              maxlength="3"
+            />
+            <van-field
+              v-model="after_bloodsugar"
+              name="餐后血糖"
+              label="餐后血糖:"
+              placeholder="餐后(mmol/L)"
+              maxlength="4"
+            />
+          </div>
+          <van-field
+            v-model="returnVisitConclusion"
+            name="回访小结"
+            label="回访小结:"
+            placeholder="回访小结"
+            rows="1"
+            maxlength="500"
+            show-word-limit
+            autosize
+            type="textarea"
+          />
+          <div class="addMedicine" @click="getAddMedicineList">
+            <span>+</span><span>添加药品</span>
+          </div>
+
+          <div class="medicineList">
+            <div
+              class="boxList"
+              v-for="(item, index) in addMedicineList"
+              :key="item.id"
+            >
+              <div class="list-head">
+                <div class="head-left">
+                  <span>{{ index + 1 }}、</span
+                  ><span>{{ item.goodsName }}</span>
+                </div>
+                <div class="head-right" @click="toDeteleMedicineList(index)">
+                  <van-icon name="delete-o" />
+                </div>
               </div>
-              <div class="head-right" @click="toDeteleMedicineList(index)">
-                <van-icon name="delete-o" />
+              <div class="list-body">
+                <div class="body-left">{{ item.spec }}</div>
+                <div class="body-right">
+                  <input type="text" v-model="item.quantity" /><label>{{
+                    item.unit
+                  }}</label>
+                </div>
               </div>
-            </div>
-            <div class="list-body">
-              <div class="body-left">{{ item.spec }}</div>
-              <div class="body-right">
-                <input
-                  type="text"
-                  placeholder="1"
-                  v-model="item.quantity"
-                /><label>{{ item.unit }}</label>
+              <div class="list-footer">
+                <label>用法用量:</label>
+                <input type="text" v-model="item.usage" />
               </div>
-            </div>
-            <div class="list-footer">
-              <label>用法用量:</label>
-              <input type="text" placeholder="一日三次" v-model="item.usage" />
             </div>
           </div>
-        </div>
-      </van-form>
+        </van-form>
+      </div>
     </div>
     <!-- 弹出层 -->
     <van-action-sheet v-model="popup">
@@ -276,12 +309,16 @@
               </van-search>
             </div>
             <div class="top-body">
+              <div v-if="searchIllnessList.length == 0" style="font-size: 12px">
+                暂无相关病史~
+              </div>
               <div
+                v-else
                 class="body-list"
                 v-for="item in searchIllnessList"
                 :key="item.id"
               >
-                <p>{{ item.tag_name }}</p>
+                <p>{{ item.icdName }}</p>
                 <div @click="toAddyetAddIllnessList(item)">
                   <span>+</span>添加
                 </div>
@@ -297,9 +334,9 @@
               <div
                 class="bottom-list"
                 v-for="(item, index) in yetAddIllnessList"
-                :key="item.id"
+                :key="item.icdName"
               >
-                <p>{{ item.tag_name }}</p>
+                <p>{{ item.icdName }}</p>
                 <div @click="toDeteleIllnessData(index)">
                   <span>&times;</span>
                 </div>
@@ -340,6 +377,13 @@
         </div>
         <div class="add-body">
           <div
+            class="add-body-nolist"
+            v-if="getSearchMedicineList && getSearchMedicineList.length == 0"
+          >
+            暂无找到相关药品~
+          </div>
+          <div
+            v-else
             class="add-body-list"
             v-for="item in getSearchMedicineList"
             :key="item.goodsNo"
@@ -357,7 +401,7 @@
     <!-- 底部按钮 -->
     <div class="footer">
       <div class="btn1" @click="toAddNewReturn(recodeId)">添加</div>
-      <div class="btn2">取消</div>
+      <div class="btn2" @click="toCancelEdit">取消</div>
     </div>
   </div>
 </template>
@@ -422,6 +466,7 @@ export default {
       communicateHobbyColumn: ["电话", "微信"], //沟通列表
       recentlyVistTime: "", //回访的时间
       againVisitDate: "",
+      againVisitDates: "", //最近复诊时间
       minDate: new Date(2020, 0, 1), //最早时间
       maxDate: new Date(2025, 10, 1), //最晚时间
       onAgainShow: false, //控制回访时间弹框
@@ -432,10 +477,6 @@ export default {
       searchIllnessList: [], //搜索得到的疾病数据
       otherIllness: "", //保存其他疾病字符串
       yetAddIllnessList: [], //添加的疾病数据
-      highBloodPressure: "", //高压值
-      lowerBloodPressure: "", //低压值
-      beforeEatFood: "", //餐前血糖
-      laterEatFood: "", //餐后血糖
       returnVisitConclusion: "", //回访小结
       addMedicineList: [], //添加药品的列表
       getSearchMedicineList: [], //保存搜索药品得到的药品列表
@@ -444,6 +485,7 @@ export default {
       // 要提交的表单值
       content: "", //回访内容
       through_type: "", //接通类型
+      saveNanme: "", //操作人
       taboo: "", //用药禁忌
       situation: "", //病情缓解情况
       is_meet: "", //服务满意与否
@@ -462,26 +504,91 @@ export default {
       bloodpressure_h: "", //高压
       bloodpressure_l: "", //低压
       summary: "", //回访小结
-      goodsInfo: [], //药品集合
+      goodsInfos: [], //药品集合
     };
   },
   created() {
     this.recodeId = this.$route.query.recodeId; //接收档案ID
   },
   methods: {
+    // 高血压值校验
+    highPressureValid() {
+      if (this.bloodpressure_h === "") {
+        return true;
+      }
+      var reg = /^\+?[1-9][0-9]*$/;
+      if (!reg.test(this.bloodpressure_h)) {
+        Toast.fail({ message: "高压值输入格式有误", duration: 750 });
+        return false;
+      }
+      return true;
+    },
+    // 低血压值校验
+    lowerPressureValid() {
+      if (this.bloodpressure_l === "") {
+        return true;
+      }
+      var reg = /^\+?[1-9][0-9]*$/;
+      if (!reg.test(this.bloodpressure_l)) {
+        Toast.fail({ message: "低压值输入格式有误", duration: 750 });
+        return false;
+      }
+      return true;
+    },
+    // 餐前血糖校验
+    beforeSugarValid() {
+      if (this.before_bloodsugar === "") {
+        return true;
+      }
+      var reg = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+      if (!reg.test(this.before_bloodsugar)) {
+        Toast.fail({ message: "餐前血压输入格式有误", duration: 750 });
+        return false;
+      }
+      return true;
+    },
+    // 餐后血糖校验
+    afterSugarValid() {
+      if (this.after_bloodsugar === "") {
+        return true;
+      }
+      var reg = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+      if (!reg.test(this.after_bloodsugar)) {
+        Toast.fail({ message: "餐后血压输入格式有误", duration: 750 });
+        return false;
+      }
+      return true;
+    },
     // 新增回访
     toAddNewReturn(recodeId) {
-      // 必填项接通类型拦截
-      if (this.through_type === "") {
-        Toast.fail({ message: "请选择接通类型", duration: 1000 });
-        return;
-      }
       // 必填项回访内容拦截
       if (this.content === "") {
         Toast.fail({ message: "请选择回访内容", duration: 1000 });
         return;
       }
-      this.toAddGoodsInfo();
+      // 必填项接通类型拦截
+      if (this.through_type === "") {
+        Toast.fail({ message: "请选择接通类型", duration: 1000 });
+        return;
+      }
+      // 必填项操作人
+      if (this.saveNanme === "") {
+        Toast.fail({ message: "请输入操作人", duration: 1000 });
+        return;
+      }
+      if (!this.highPressureValid()) {
+        return false;
+      }
+      if (!this.lowerPressureValid()) {
+        return false;
+      }
+      if (!this.beforeSugarValid()) {
+        return false;
+      }
+      if (!this.afterSugarValid()) {
+        return false;
+      }
+      this.toAddGoodsInfos();
       Dialog.confirm({
         title: "添加回访",
         message: "是否确认添加？",
@@ -495,7 +602,7 @@ export default {
             timestamp,
             sign,
             record_id: recodeId,
-            create_user: "企微", //操作人
+            create_user: this.saveNanme, //操作人
             content: this.content, //回访内容
             through_type: this.through_type, //接通类型
             taboo: this.medicineDrugUsing, //用药禁忌
@@ -509,27 +616,29 @@ export default {
             is_medicine: this.ifLongTimeRely, //是否长期服药
             has_adversereactions: this.ifUntowardEffect, //有无药品不良反应
             visitway: this.visitway, //沟通偏好
-            visit_date: this.againVisitDate, //最近复诊时间
+            visit_date: this.againVisitDates, //最近复诊时间
             other_disease: this.otherIllness, //其他伴随疾病
-            before_bloodsugar: this.beforeEatFood, //餐前血糖
-            after_bloodsugar: this.laterEatFood, //餐后血糖
-            bloodpressure_h: this.highBloodPressure, //高压
-            bloodpressure_l: this.lowerBloodPressure, //低压
+            before_bloodsugar: this.before_bloodsugar, //餐前血糖
+            after_bloodsugar: this.after_bloodsugar, //餐后血糖
+            bloodpressure_h: this.bloodpressure_h, //高压
+            bloodpressure_l: this.bloodpressure_l, //低压
             summary: this.returnVisitConclusion, //回访小结
-            goodsInfo: this.goodsInfo, //药品集合
+            goodsInfo:
+              this.goodsInfos.length == 0
+                ? ""
+                : JSON.stringify(this.goodsInfos), //药品集合
           };
-          console.log(query, "query");
+          console.log(query);
           addNewReturn(query)
             .then((res) => {
               console.log(res);
               if (res.message === "执行成功!") {
-                this.popupLoadingShow = false;
                 this.$toast({
                   type: "success",
                   message: "新增成功!",
                   duration: 500,
                 });
-                this.$router.push("/FamilyArchives");
+                this.$router.go(-1);
               } else {
                 this.$toast({
                   type: "fail",
@@ -537,12 +646,14 @@ export default {
                   duration: 350,
                 });
               }
+              this.popupLoadingShow = false;
             })
             .catch((err) => {
               Dialog.alert({
                 title: "错误提醒",
                 message: "网络延迟，请重试！",
               });
+              this.popupLoadingShow = false;
             });
         })
         .catch(() => {
@@ -623,9 +734,12 @@ export default {
     },
     // 选择复诊日期
     formatDate(againVisitDate) {
-      return `${againVisitDate.getFullYear()}/${
-        againVisitDate.getMonth() + 1
-      }/${againVisitDate.getDate()}`;
+      this.againVisitDates =
+        `${againVisitDate.getFullYear()}-${againVisitDate.getMonth() +
+          1}-${againVisitDate.getDate()}` + " 00:00:00";
+
+      return `${againVisitDate.getFullYear()}-${againVisitDate.getMonth() +
+        1}-${againVisitDate.getDate()}`;
     },
     onAgainVisitDate(againVisitDate) {
       this.onAgainShow = false;
@@ -646,14 +760,16 @@ export default {
       var timestamp = new Date().getTime();
       var sign = this.getSign(timestamp);
       var query = {
-        method: "getMemberSearchDiseaseTypeService",
-        searchKey: this.popupValue,
+        method: "searchIcdDisease",
+        keyword: this.popupValue,
+        pageNo: 1,
+        pageSize: 50,
         sign: sign,
         timestamp: timestamp,
       };
       toSearchIllnessList(query).then((res) => {
-        console.log(res.searchDiseaseTypeList, "xxxxxxxxxxxxx");
-        this.searchIllnessList = res.searchDiseaseTypeList;
+        console.log(res.diseaseList, "xxxxxxxxxxxxx");
+        this.searchIllnessList = res.diseaseList;
       });
     },
     // 弹框取消添加疾病
@@ -691,7 +807,7 @@ export default {
     affirmAddIllness() {
       this.otherIllness = ""; //重置
       this.yetAddIllnessList.forEach((item) => {
-        this.otherIllness = this.otherIllness + item.tag_name + ",";
+        this.otherIllness = this.otherIllness + item.icdName + ",";
       });
       if (this.yetAddIllnessList.length == 0) {
         this.$toast({ type: "fail", message: "还未添加病史", duration: 350 });
@@ -712,7 +828,7 @@ export default {
       var obj = item;
       obj.quantity = "";
       obj.usage = "";
-      // 将
+      //
       this.showAddMedicine = false;
       if (this.addMedicineList.length == 0) {
         this.addMedicineList.push(obj);
@@ -727,20 +843,27 @@ export default {
           break;
         }
       }
-      console.log(this.addMedicineList, "addMedicineList");
     },
     // 处理要添加的药品对象
-    toAddGoodsInfo() {
+    toAddGoodsInfos() {
+      this.goodsInfos = [];
       if (this.addMedicineList.length > 0) {
-        this.addMedicineList.forEach((item) => {
+        if (this.addMedicineList.length == 1) {
+          var item = this.addMedicineList;
           var obj = {};
-          obj.goodsNo = item.goodsNo;
-          obj.quantity = item.quantity;
-          obj.usage = item.usage;
-          this.goodsInfo.push(obj);
-        });
-      } else {
-        this.goodsInfo = [];
+          obj.goodsNo = item[0].goodsNo;
+          obj.quantity = item[0].quantity || 0;
+          obj.usage = item[0].usage;
+          this.goodsInfos.push(obj);
+        } else {
+          this.addMedicineList.forEach((item) => {
+            var obj = {};
+            obj.goodsNo = item.goodsNo;
+            obj.quantity = item.quantity || 0;
+            obj.usage = item.usage;
+            this.goodsInfos.push(obj);
+          });
+        }
       }
     },
     // 点击图标删除已添加的药品
@@ -781,6 +904,10 @@ export default {
         this.getSearchMedicineList = res.searchGoodsList;
       });
     },
+    // 点击跳转上一页
+    toCancelEdit() {
+      this.$router.go(-1);
+    },
   },
 };
 </script>
@@ -797,12 +924,17 @@ export default {
   position: fixed;
   padding: 50px 0;
   width: 100%;
-  height: 90%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  z-index: 999;
+  height: 100%;
   left: 0;
   top: 0;
+  .content-scroll {
+    box-sizing: border-box;
+    padding: 0 20px;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
   /deep/ .van-action-sheet__content {
     font-size: 12px;
   }
@@ -810,10 +942,14 @@ export default {
     font-size: 12px;
   }
   /deep/ .van-cell__title {
-    width: 38% !important;
+    width: 33% !important;
   }
-  /deep/ .van-cell__value {
-    text-align: left;
+  .inner-radio {
+    margin-right: 5px;
+    margin-top: 10px;
+  }
+  /deep/ .van-checkbox {
+    margin-top: 10px;
   }
 }
 .bloodData {
@@ -826,7 +962,7 @@ export default {
     width: 50%;
   }
   /deep/ .van-cell__title {
-    width: 39% !important;
+    width: 34% !important;
   }
 }
 // 添加药品
@@ -840,6 +976,12 @@ export default {
   box-sizing: border-box;
   margin: 5px auto;
   font-size: 12px;
+}
+.medicine-list {
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  line-height: 18px;
 }
 .medicineList {
   background-color: #f8f8f8;
@@ -890,6 +1032,13 @@ export default {
     width: 100%;
     height: 280px;
     overflow-y: auto;
+    .add-body-nolist {
+      width: 100%;
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      line-height: 16px;
+    }
     .add-body-list {
       width: 90%;
       height: 30px;
@@ -1032,14 +1181,18 @@ export default {
   z-index: 998;
   font-size: 14px;
   width: 100%;
-  height: 40px;
+  height: 50px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
   background-color: #fff;
+  border-top: 1px solid #dcdfe6;
   div {
-    width: 40%;
+    cursor: pointer;
+    width: 25%;
     border-radius: 4px;
-    line-height: 40px;
+    line-height: 30px;
+    height: 30px;
     text-align: center;
   }
   .btn1 {
@@ -1049,7 +1202,6 @@ export default {
   .btn2 {
     border: 1px solid #797979;
     box-sizing: border-box;
-    line-height: 39px;
   }
 }
 </style>

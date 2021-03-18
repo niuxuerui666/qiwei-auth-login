@@ -9,8 +9,8 @@
       <!-- 群聊入口进入 -->
       <!-- <div v-if="user_type === '3'">这是群聊进入的</div> -->
       <!-- 企微用户 -->
-      <div v-if="user_type === '2'">
-        <img src="'../../assets/microimg.jpg'" />
+      <div v-if="user_type === '2'" class="microimg">
+        <img :src="microimgUrl" />
       </div>
       <!-- 微信用户 -->
       <div v-if="user_type === '1'">
@@ -19,57 +19,128 @@
           <div @click="toSendUpGrade"><img :src="upGradeUrl" /></div>
         </div>
         <!-- 客户是会员 -->
-        <div v-else>
-          <div class="label">
+        <div v-else-if="memberId != ''">
+          <!-- <div class="label">
             <span class="l-span1"></span>
             <span class="l-span2">会员订单</span>
-          </div>
-          <!-- 灰条 -->
-          <div class="gray_line"></div>
-          <div
-            class="order"
-            v-for="(item, index) in orderList"
-            :key="index"
-            @click="popupwindow(item)"
-          >
-            <div class="o-head">
-              <table>
-                <tr height="15px">
-                  <td>
-                    <span class="h-span1">订单编号:</span>
-                    <span class="h-span2">{{ item.olOrderNo }}</span>
-                  </td>
-                  <td width="52%">
-                    <span class="h-span1">创建时间:</span>
-                    <span class="h-span2">{{ item.downloadTime }}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td width="160px">
-                    <span class="h-span1">订单金额:</span>
-                    <span class="h-span2">{{ item.payment }}</span>
-                  </td>
-                  <td>
-                    <span class="h-span1">订单来源:</span>
-                    <span class="h-span2">德生堂大药房旗舰店(天猫)</span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <!-- 订单身体部分 -->
-            <div
-              class="o-body"
-              v-for="(res, resindex) in item.lineItems"
-              :key="resindex"
+          </div> -->
+          <!-- <div class="header-search">
+            <van-search
+              show-action
+              v-model="keyword"
+              shape="round"
+              placeholder="请输入搜索关键词"
             >
-              <table>
-                <tr>
-                  <td width="60px">{{ res.wareId }}</td>
-                  <td width="210px">{{ res.wareName }}</td>
-                  <td width="50px">&times;{{ res.times }}</td>
-                </tr>
-              </table>
-            </div>
+              <template #action>
+                <div v-if="keyword===''" @click="onCancel()">取消</div>
+                <div v-else @click="onSearch()">搜索</div>
+              </template>
+            </van-search>
+          </div> -->
+          <!-- <van-empty v-if="finished2 && list2.length == 0" description="" /> -->
+          <div class="order-list">
+            <van-list
+              finished-text="没有更多了"
+              @load="onLoad"
+              v-model="loading"
+              :finished="finished"
+            >
+              <!-- <div class="ifExistOrder" v-if="orderList.length == 0">无相关订单~</div> -->
+              <div
+                class="order"
+                v-for="(item, index) in orderList"
+                :key="index"
+                @click="popupwindow(item)"
+              >
+                <div class="o-head">
+                  <table>
+                    <tr height="12px">
+                      <div class="o-head-source">
+                        <p>{{ item.source ? item.source : "线下" }}</p>
+                        <p v-if="item.unitFlag === '1'">
+                          <span>方</span>
+                        </p>
+                      </div>
+                    </tr>
+                    <tr height="15px">
+                      <td>
+                        <span class="h-span1">订单编号:</span>
+                        <span class="h-span2">{{
+                          item.source === "线下" ? item.saleNo : item.olOrderNo
+                        }}</span>
+                      </td>
+                      <td width="52%">
+                        <span class="h-span1">创建时间:</span>
+                        <span class="h-span2">{{
+                          item.accDate | dealTime
+                        }}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="160px">
+                        <span class="h-span1">订单金额:</span>
+                        <span class="h-span2">{{
+                          item.payment ? item.payment : "-"
+                        }}</span>
+                      </td>
+                      <td>
+                        <span class="h-span1">订单来源:</span>
+                        <span class="h-span2">{{
+                          item.source === "线下"
+                            ? item.busName
+                            : item.indentSource
+                        }}</span>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <!-- 订单身体部分 -->
+                <div class="o-body">
+                  <div class="o-body-square" v-if="item.squareList.length > 0">
+                    <div v-for="(resList, key) in item.squareObj" :key="key">
+                      <div><span>方案名称:</span>{{ key }}</div>
+                      <!-- 循环方订单 -->
+                      <table>
+                        <tr
+                          v-for="innerList in resList"
+                          :key="innerList.makeNo"
+                        >
+                          <td width="30%">
+                            <p>{{ innerList.wareName }}</p>
+                          </td>
+                          <td width="30%">
+                            {{ innerList.amount | dealString }}
+                          </td>
+                          <td width="30%">
+                            &times;{{ innerList.wareQty | dealString }}
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                  <!-- 循环单品 -->
+                  <div class="o-body-nosquare">
+                    <!-- 循环非方订单 -->
+                    <table v-if="item.noSquareList.length > 0">
+                      <tr
+                        v-for="(res, index) in item.noSquareList"
+                        :key="index"
+                      >
+                        <td width="30%">
+                          <p>{{ res.wareName }}</p>
+                          <p class="o-p2">{{ res.wareSpec }}</p>
+                          <p class="o-p3">{{ res.wareId }}</p>
+                        </td>
+                        <td width="30%">{{ res.amount | dealString }}</td>
+                        <td width="30%">
+                          &times;{{ res.wareQty | dealString }}
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </van-list>
           </div>
         </div>
       </div>
@@ -86,17 +157,19 @@
               }}</span>
             </p>
             <p>
-              <span class="block-span1">联系电话:</span
-              ><span class="block-span2">{{
+              <span class="block-span1">联系电话:</span>
+              <span class="block-span2">{{
                 popupObj.receiverMobile ? popupObj.receiverMobile : "-"
               }}</span>
             </p>
             <p>
-              <span class="block-span1">收货地址:</span
-              ><span class="block-span2">{{
+              <span class="block-span1">收货地址:</span>
+              <span class="block-span2">{{
                 popupObj.receiverState +
                 "-" +
                 popupObj.receiverCity +
+                "-" +
+                popupObj.receiverDistrict +
                 "-" +
                 popupObj.receiverAddress
               }}</span>
@@ -112,6 +185,7 @@
 import { getMemberOrder, getUserTypeId } from "../../api/index";
 import loading from "../loading/loading";
 import axios from "axios";
+import { Toast, Notify, Dialog } from "vant";
 export default {
   components: {
     loading,
@@ -125,11 +199,26 @@ export default {
       orderList: [], //订单列表
       popupObj: {}, //保存 弹出框对象
       upGradeUrl: require("../../assets/notgold.jpg"), //非会员图片
+      microimgUrl: require("../../assets/microimg.jpg"), //企微图片
+      finished: false, //判断是否加载完成
+      loading: false, //
+      pageNo: 1, //页码
+      keyword: "", //输入的值
     };
+  },
+  filters: {
+    // 过滤价格
+    dealString(val) {
+      return val.slice(0, -4);
+    },
+    // 过滤时间
+    dealTime(val) {
+      return val.slice(0, -5);
+    },
   },
   created() {
     this.getUserId(this.$route.query.userId);
-    this.getMemberOrderList();
+    // this.getMemberOrderList(); //到企微关闭
   },
   methods: {
     //加密标识
@@ -148,40 +237,110 @@ export default {
         timestamp,
         sign,
       };
-      // getUserTypeId(query).then((res) => {
-      //   this.memberId = res.data.member_id;
-      //   this.mobile = res.data.mobile;
-      //   this.getMemberOrderList(res.data.mobile);
-      //   this.user_type = res.data.user_type;
-      // });
+      getUserTypeId(query).then((res) => {
+        if (res.code === "1") {
+          this.memberId = res.data.member_id;
+          this.mobile = res.data.mobile;
+          this.user_type = res.data.user_type;
+          if (res.data.mobile != "") {
+            this.getMemberOrderList(false, res.data.mobile, "");
+          }
+        }else{
+          this.$router.push({path:"/500"})
+        }
+      });
     },
-
+    // 聚焦清空列表
+    // toFocusSearch() {
+    //   this.pageNo = 1;
+    //   this.orderList = [];
+    //   // this.getMemberOrderList = false;
+    // },
+    // 输入框内容为空重新加载
+    // toBlurSearch() {
+    //   this.pageNo = 1;
+    //   this.orderList = [];
+    //   if (this.keyword.trim() == "") {
+    //     this.getMemberOrderList(false, this.mobile, this.keyword);
+    //   }
+    // },
+    // 查询相关订单
+    onSearch() {
+      this.pageNo = 1;
+      this.orderList = [];
+      this.keyword = this.keyword.trim();
+      if (this.keyword == "") {
+        Toast.fail({ message: "搜索内容不能为空", duration: 500 });
+        return;
+      }
+      this.getMemberOrderList(false, this.mobile, this.keyword);
+    },
+    // 取消查询
+    onCancel() {
+      this.pageNo = 1;
+      this.orderList = [];
+      this.keyword = this.keyword.trim();
+      this.getMemberOrderList(false, this.mobile, "");
+    },
+    // 判断是否包含方订单
+    ifContentSquare(list) {
+      if (list && list.length > 0) {
+        list.forEach((item) => {
+          item.unitFlag = "0"; //默认0
+          item.squareList = []; //保存方订单
+          item.squareNameList = []; //保存方订单名称
+          item.squareObj = {}; //保存方订单对应的
+          item.noSquareList = []; //保存非方订单
+          if (item.lineItems.length > 0) {
+            item.lineItems.forEach((items) => {
+              if (items.unitFlag === "1") {
+                item.unitFlag = "1"; //方订单改为1
+                item.squareList.push(items);
+                item.squareNameList.push(items.unitUseName);
+              } else {
+                item.noSquareList.push(items);
+              }
+            });
+            item.squareNameList = [...new Set(item.squareNameList)]; //方名称去重
+            // 拿到不同方对应的药品  遍历所有的方订单
+            item.squareNameList.forEach((res1) => {
+              item.squareObj[res1] = [];
+              item.squareList.forEach((res2) => {
+                if (res1 == res2.unitUseName) {
+                  item.squareObj[res1].push(res2);
+                }
+              });
+            });
+          }
+        });
+      }
+      return list;
+    },
+    onLoad() {
+      if (this.mobile != "") {
+        this.getMemberOrderList(true, this.recodeId, this.keyword);
+      }
+    },
     //   获取会员订单列表
-    getMemberOrderList(mobile) {
+    getMemberOrderList(more, mobile, value) {
+      if (more) {
+        if (!this.finished) {
+          this.pageNo = this.pageNo + 1;
+        }
+      }
+      Toast.loading({ message: "加载中..." });
       var timestamp = new Date().getTime();
       var sign = this.getSign(timestamp);
-      var query = {
-        // mobile: mobile,
-        timestamp,
-        sign,
-        mobile: "13609348710",
-      };
-
       axios({
-        url: "http://crm-api-test.111yao.cn:7001/api/order/getOrderList",
+        url: "https://crm-api-test.111yao.cn:7443/api/order/getOrderList",
         // url: "http://crm-api-test.111yao.cn:7001/api/memCard/getMemCardList",
-        // url:"/crmapitest/api/order/getOrderList",
-        // url: "https://router.111yao.com/sltRouter",
         method: "get",
         params: {
-          // keyword: "", //商品名称   selectType==1
-          // goodsno: "", //商品编号   selectType==2
-          // selectType:"", //	1商品名称2商品编号（必填）
-          // method: "getQiMoGoodsList",
-          // platformType: "wap",
-          // pageNo: 1, //必填
-          // pageSize: 10, //非必填
-          mobile: "13609348710",
+          pageNo: this.pageNo, //必填
+          pageNum: 10, //必填
+          // mobile: "13609348710", //必填
+          mobile: mobile, //必填
+          searchCondition: value, //非必填
         },
         headers: {
           "Content-Type": "application/json;charset=utf-8",
@@ -190,32 +349,104 @@ export default {
         },
       })
         .then((res) => {
-          console.log(res.data, "res");
+          this.loading = false;
+          // this.finished = true;
+          if ((res.statusCode = 1)) {
+            if (res.data.data.list && res.data.data.list.length > 0) {
+              if (!more) {
+                this.orderList = this.ifContentSquare(res.data.data.list);
+              }
+              if (more) {
+                this.orderList = this.orderList.concat(
+                  this.ifContentSquare(res.data.data.list)
+                );
+              }
+              this.finished = false;
+            } else {
+              this.finished = true;
+            }
+          }
+          console.log(this.orderList, "xxx");
         })
         .catch((err) => {
-          debugger
           console.log(err, "err");
         });
-
-      // getMemberOrder(query)
-      //   .then((res) => {
-      //     console.log(res, "xxxxx");
-      //     this.orderList = res.data.data;
-      //   })
-      //   .catch((err) => {
-      //     console.log(err, "shibai");
-      //   });
+    },
+    // 点击发送升级会员卡片
+    toSendUpGrade() {
+      let that = this;
+      // alert(JSON.stringify(obj))
+      that.globalLoading = true;
+      if (wx.invoke) {
+        wx.invoke(
+          "sendChatMessage",
+          {
+            msgtype: "miniprogram", //消息类型，必填
+            miniprogram: {
+              appid: "wx0be4163af4e66222", //小程序的appid
+              // title: "这是小程序标题", //小程序消息的title
+              // imgUrl:
+              // "https://img.zdfei.com/static/image/goods//201808/64f0a1299ad5bc1c7fc464074c467c0b.jpg", //小程序消息的封面图。必须带http或者https协议头，否则报错 $apiName$:fail invalid imgUrl
+              // page: "/pages/Index/index.html", //小程序消息打开后的路径，注意要以.html作为后缀，否则在微信端打开会提示找不到页面
+              title: "注册成为金卡会员，拥有私属家庭医生，领取惊喜大礼包",
+              imgUrl:
+                "https://111yao.oss-cn-beijing.aliyuncs.com/webFile/html5/Bronchitis/images/1.jpg",
+              page:
+                "/pages/TobindingHtml/index.html?type=GetUserInfos&bingdingType=bingding_dst_let",
+            },
+          },
+          function (res) {
+            that.globalLoading = false;
+            if (res.err_msg == "sendChatMessage:ok") {
+              //发送成功
+              Notify({ type: "success", message: "发送中", duration: 500 });
+            } else {
+              Dialog.alert({
+                title: "提示",
+                message: "sorry1~ 发送失败,请刷新页面重试!",
+              }).then(() => {
+                // on close
+                window.location.reload();
+              });
+            }
+          }
+        );
+      } else {
+        that.globalLoading = false;
+        Dialog.alert({
+          title: "提示",
+          message: "sorry2~ 发送失败,请刷新页面重试!",
+        }).then(() => {
+          // on close
+          window.location.reload();
+        });
+      }
     },
     // 显示弹框
     popupwindow(item) {
-      this.show = true;
-      this.popupObj = item;
+      if (item.source === "线上") {
+        this.show = true;
+        this.popupObj = item;
+      } else {
+        Toast.fail({ message: "线下订单不支持查看", duration: 800 });
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+[v-cloak] {
+  display: none;
+}
+.microimg {
+  width: 100%;
+  height: 100%;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
 .waiting {
   position: fixed;
   width: 100%;
@@ -226,14 +457,7 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.content {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 50px;
-}
+
 // 会员标签
 .label {
   width: 100%;
@@ -254,37 +478,116 @@ export default {
     margin-left: 6px;
   }
 }
-// 订单信息
-.order {
-  padding: 10px;
-  .o-head {
-    border-radius: 8px 8px 0 0;
-    box-shadow: 0 0 4px #0000001a;
-    background-color: #f1f1f1;
-    font-size: 10px;
-    .h-span1 {
-      line-height: 20px;
-      color: #9b9b9b;
-    }
-    .h-span2 {
-      color: #4a4a4a;
-    }
+// 非会员图片样式
+.notNumber {
+  cursor: pointer;
+  img {
+    width: 100%;
   }
-  .o-body {
+}
+.order-list {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 10px 50px 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /deep/ .van-list__finished-text {
+    font-size: 11px;
+  }
+  .ifExistOrder {
+    width: 100%;
+    text-align: center;
+    line-height: 40px;
     font-size: 12px;
-    color: #4a4a4a;
-    font-weight: bold;
+    color: #c1c1c3;
+  }
+  // 订单信息
+  .order {
+    margin: 5px 0;
     background-color: #fff;
-    border-top: none;
-    min-height: 30px;
-    tr {
-      height: 30px;
-      td {
-        line-height: 19px;
+    border-radius: 8px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    .o-head {
+      border-bottom: 1px dashed #eeeeeec7;
+      font-size: 10px;
+      box-sizing: border-box;
+      padding: 5px;
+      table {
+        width: 100%;
+        .o-head-source {
+          display: flex;
+          p {
+            background-color: #6bb5ff2d;
+            color: #3399ff;
+            min-width: 24px;
+            height: 12px;
+            border: 1px solid #3399ff;
+            border-radius: 3px;
+            text-align: center;
+            line-height: 12px;
+            font-size: 10px;
+            margin-right: 5px;
+          }
+        }
+      }
+
+      .h-span1 {
+        line-height: 20px;
+        color: #9b9b9b;
+      }
+      .h-span2 {
+        color: #4a4a4a;
+      }
+    }
+    .o-body {
+      font-size: 11px;
+      color: #4a4a4a;
+      font-weight: bold;
+      background-color: #fff;
+      border-top: none;
+      min-height: 30px;
+      .o-body-square,
+      .o-body-nosquare {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        table {
+          width: 100%;
+          tr {
+            height: 30px;
+            td {
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              line-height: 19px;
+              p {
+                line-height: 14px;
+              }
+              .o-p2,
+              .o-p3 {
+                font-size: 10px;
+                color: #666;
+              }
+              .o-p3 {
+                margin-bottom: 3px;
+              }
+            }
+          }
+        }
+      }
+      .o-body-square {
+        table {
+          box-sizing: border-box;
+          padding-left: 5px;
+          font-weight: normal;
+        }
       }
     }
   }
 }
+
 .wrapper {
   display: flex;
   align-items: center;
