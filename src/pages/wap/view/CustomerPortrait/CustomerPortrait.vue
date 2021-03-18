@@ -59,7 +59,7 @@
                     />
                   </div>
                 </div>
-                <div class="bulid" @click="toBuild()">一键建群</div>
+                <!-- <div class="bulid" @click="toBuild()">一键建群</div> -->
               </div>
               <!-- 基本信息 -->
               <div class="user_info">
@@ -95,7 +95,7 @@
                 <span
                   v-if="
                     sideInfo.userAddCustomer &&
-                    sideInfo.userAddCustomer.length == 0
+                      sideInfo.userAddCustomer.length == 0
                   "
                   >未添加企微</span
                 >
@@ -108,7 +108,7 @@
                     class="imgbox"
                     v-if="
                       sideInfo.userAddCustomer &&
-                      sideInfo.userAddCustomer.length == 1
+                        sideInfo.userAddCustomer.length == 1
                     "
                   >
                     <img src="../../assets/u46.png" alt="" />
@@ -117,7 +117,7 @@
                     class="imgbox"
                     v-if="
                       sideInfo.userAddCustomer &&
-                      sideInfo.userAddCustomer.length >= 2
+                        sideInfo.userAddCustomer.length >= 2
                     "
                   >
                     <img src="../../assets/u46.png" alt="" />
@@ -132,15 +132,15 @@
                     }}个员工</span
                   >
                 </div>
-                <div @click="toGroup()">
+                <!-- <div @click="toGroup()">
                   共{{
                     sideInfo.userGroupOfData && sideInfo.userGroupOfData.length
                       ? sideInfo.userGroupOfData.length
                       : "0"
                   }}个群聊&nbsp;&gt;
-                </div>
+                </div> -->
               </div>
-              <!--  -->
+  
               <div class="attention">
                 <img src="../../assets/u89.png" />
                 <span v-if="sideInfo.onileUser && sideInfo.onileUser.member_id"
@@ -173,9 +173,15 @@
                 <div class="noLabel" v-if="labelList && labelList.length == 0">
                   该会员暂无标签
                 </div>
-                <div class="list-box" v-for="item in labelList" :key="item.id">
-                  {{ item }}
-                </div>
+                <el-tag
+                  style="margin:5px;"
+                  type="info"
+                  size="medium"
+                  effect="plain"
+                  v-for="item in labelList"
+                  :key="item.id"
+                  >{{ item }}</el-tag
+                >
               </div>
             </div>
             <!-- 灰条 -->
@@ -356,69 +362,10 @@ export default {
     loading,
   },
   created() {
-    // var timestamp = new Date().getTime();
-    // var sign = this.getSign(timestamp);
-    // axios({
-    //   url: "http://crm-api-test.111yao.cn:7001/api/user/queryUserTags",
-    //   method: "get",
-    //   params: {
-    //     oneId: "7369af0a-35c0-4385-a17d-eb4bb5a32b14",
-    //   },
-    //   headers: {
-    //     "Content-Type": "application/json;charset=utf-8",
-    //     timestamp,
-    //     sign,
-    //   },
-    // })
-    //   .then((res) => {
-    //     // if (res.data.msg === "成功") {
-    //     //   that.orderList = res.data.data;
-    //     //   console.log(this.orderList);
-    //     // }
-    //     console.log(res, "cccccc");
-    //     this.dealTags(res.data.data.tags);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err, "err");
-    //   });
-    this.getMemberId(this.$route.query.userId); //调用获取信息函数
+    // this.getMemberId(this.$route.query.userId); //调用获取信息函数
+    this.toGetCustomerInfo(this.$route.query.userId); //获取会员画像
     this.getAvatarUrl(this.$route.query.userId); //调用获取头像
-    this.toGetSideWechatInfo(this.$route.query.userId); //调用获取侧边栏信息
-    // var timestamp = new Date().getTime();
-    // var sign = this.getSign(timestamp);
-    // var query = {
-    //   timestamp,
-    //   sign,
-    //   user_id: "wmcXsxDgAAMoI4YhKIhfUPP7WZcJE7cg",
-    //   customer_id: "10004610",
-    // };
-    // getSideWechatInfo(query)
-    //   .then((res) => {
-    //     console.log(res, "测试");
-    //     this.sideInfo = res.data;
-    //     if (this.sideInfo.userBangDingData.length != 0) {
-    //       this.sideInfo.userBangDingData.forEach((item) => {
-    //         if (item.type == 1) {
-    //           this.oneAccount = 1;
-    //         } else if (item.type == 2) {
-    //           this.dstAccount = 2;
-    //         }
-    //       });
-    //     }
-    //   })
-    //   .catch((err) => {});
-    // var querys = { userid: "wmcXsxDgAAKlZ9GhKkNMhK719tB8v_SQ" };
-    // getCustomerName(querys).then((res) => {
-    //   if (res.code == 0) {
-    //     this.avatarUrl = res.data.avatar;
-    //   } else {
-    //     Notify({
-    //       type: "error",
-    //       message: "获取客户昵称失败！",
-    //       duration: 800,
-    //     });
-    //   }
-    // });
+    // this.toGetSideWechatInfo(this.$route.query.userId); //调用获取侧边栏信息
   },
   mounted() {},
   methods: {
@@ -486,7 +433,8 @@ export default {
       var that = this;
       getCustomerName(query).then((res) => {
         if (res.code == 0) {
-          that.avatarUrl = res.data.avatar;
+          // that.avatarUrl = res.data.avatar;
+          console.log("获取头像", res);
         } else {
           Notify({
             type: "error",
@@ -597,7 +545,7 @@ export default {
                 "/pages/TobindingHtml/index.html?type=GetUserInfos&bingdingType=bingding_dst_let",
             },
           },
-          function (res) {
+          function(res) {
             that.globalLoading = false;
             if (res.err_msg == "sendChatMessage:ok") {
               //发送成功
@@ -711,8 +659,9 @@ export default {
   box-sizing: border-box;
   width: 100%;
   background-color: #fff;
-  line-height: 25px;
-  border-bottom: 1px solid #eee;
+  height: 50px;
+  line-height: 50px;
+  border-bottom: 1px solid #e4e7ed;
   .labels {
     .l-span1 {
       display: inline-block;
@@ -767,8 +716,9 @@ export default {
   background-color: #fff;
 }
 .content {
-  width: 345px;
+  width: 80%;
   margin: 0 auto;
+  padding: 20px 0;
 }
 .user {
   display: flex;
@@ -886,12 +836,12 @@ export default {
   width: 100%;
   height: 12px;
   background-color: #f2f2f2;
-  margin-top: 40px;
 }
 
 // 会员标签
 .label {
-  line-height: 25px;
+  height: 50px;
+  line-height: 50px;
   border-bottom: 1px solid #eee;
   .l-span1 {
     display: inline-block;

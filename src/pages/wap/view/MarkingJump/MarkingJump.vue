@@ -37,8 +37,8 @@ export default {
       this.theRequest = { ...Request };
 
       this.loadingFlag = false;
-
-      this.handleEdit();
+      this.toJump(); //跳转至
+      // this.handleEdit();
     },
     //编辑操作    处理会员画像  两个接口和列表里 的整体数据
     async handleEdit() {
@@ -126,14 +126,14 @@ export default {
           //网络失败
           this.$message({
             type: "error",
-            message: "获取标签信息失败！"+JSON.stringify(err),
+            message: "获取标签信息失败！" + JSON.stringify(err),
           });
         });
     },
 
     toJump() {
       this.$router.push({
-        path: "/FamilyArchives",
+        path: "/CustomerPortrait",
         query: { userId: this.theRequest.UserId ? this.theRequest.UserId : "" },
       });
     },

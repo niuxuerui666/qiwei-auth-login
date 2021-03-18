@@ -20,10 +20,10 @@
         </div>
         <!-- 客户是会员 -->
         <div v-else-if="memberId != ''">
-          <!-- <div class="label">
+          <div class="label">
             <span class="l-span1"></span>
             <span class="l-span2">会员订单</span>
-          </div> -->
+          </div>
           <!-- <div class="header-search">
             <van-search
               show-action
@@ -32,20 +32,24 @@
               placeholder="请输入搜索关键词"
             >
               <template #action>
-                <div v-if="keyword===''" @click="onCancel()">取消</div>
+                <div v-if="keyword === ''" @click="onCancel()">取消</div>
                 <div v-else @click="onSearch()">搜索</div>
               </template>
             </van-search>
           </div> -->
-          <!-- <van-empty v-if="finished2 && list2.length == 0" description="" /> -->
+
           <div class="order-list">
             <van-list
-              finished-text="没有更多了"
+              finished-text="没有更多订单了"
               @load="onLoad"
               v-model="loading"
               :finished="finished"
             >
               <!-- <div class="ifExistOrder" v-if="orderList.length == 0">无相关订单~</div> -->
+              <van-empty
+                v-if="orderList && orderList.length === 0"
+                description=""
+              />
               <div
                 class="order"
                 v-for="(item, index) in orderList"
@@ -166,12 +170,12 @@
               <span class="block-span1">收货地址:</span>
               <span class="block-span2">{{
                 popupObj.receiverState +
-                "-" +
-                popupObj.receiverCity +
-                "-" +
-                popupObj.receiverDistrict +
-                "-" +
-                popupObj.receiverAddress
+                  "-" +
+                  popupObj.receiverCity +
+                  "-" +
+                  popupObj.receiverDistrict +
+                  "-" +
+                  popupObj.receiverAddress
               }}</span>
             </p>
           </div>
@@ -217,7 +221,11 @@ export default {
     },
   },
   created() {
-    this.getUserId(this.$route.query.userId);
+    this.memberId = this.$route.query.userId;
+    this.mobile = this.$route.query.phone;
+    this.getMemberOrderList(false, this.mobile, "");
+
+    // this.getUserId(this.$route.query.userId);
     // this.getMemberOrderList(); //到企微关闭
   },
   methods: {
@@ -245,8 +253,8 @@ export default {
           if (res.data.mobile != "") {
             this.getMemberOrderList(false, res.data.mobile, "");
           }
-        }else{
-          this.$router.push({path:"/500"})
+        } else {
+          this.$router.push({ path: "/500" });
         }
       });
     },
@@ -338,8 +346,8 @@ export default {
         params: {
           pageNo: this.pageNo, //必填
           pageNum: 10, //必填
-          // mobile: "13609348710", //必填
-          mobile: mobile, //必填
+          mobile: "13609348710", //必填 上线删除
+          // mobile: mobile, //必填
           searchCondition: value, //非必填
         },
         headers: {
@@ -395,7 +403,7 @@ export default {
                 "/pages/TobindingHtml/index.html?type=GetUserInfos&bingdingType=bingding_dst_let",
             },
           },
-          function (res) {
+          function(res) {
             that.globalLoading = false;
             if (res.err_msg == "sendChatMessage:ok") {
               //发送成功
@@ -463,9 +471,11 @@ export default {
   width: 100%;
   padding: 0 10px;
   background-color: #fff;
-  line-height: 25px;
+  height: 50px;
+  line-height: 50px;
   display: flex;
   align-items: center;
+  border: 1px solid #dcdfe6;
   .l-span1 {
     display: inline-block;
     width: 4px;
