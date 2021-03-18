@@ -60,10 +60,17 @@
                   <table>
                     <tr height="12px">
                       <div class="o-head-source">
-                        <p>{{ item.source ? item.source : "线下" }}</p>
+                        <!-- <p>{{ item.source ? item.source : "线下" }}</p>
                         <p v-if="item.unitFlag === '1'">
                           <span>方</span>
-                        </p>
+                        </p> -->
+
+                        <el-tag effect="plain" size="small">
+                          {{ item.source ? item.source : "线下" }}
+                        </el-tag>
+                        <el-tag v-if="item.unitFlag === '1'" effect="plain" size="small">
+                          方
+                        </el-tag>
                       </div>
                     </tr>
                     <tr height="15px">
@@ -75,9 +82,7 @@
                       </td>
                       <td width="52%">
                         <span class="h-span1">创建时间:</span>
-                        <span class="h-span2">{{
-                          item.accDate | dealTime
-                        }}</span>
+                        <span class="h-span2">{{ item.accDate }}</span>
                       </td>
                     </tr>
                     <tr>
@@ -113,11 +118,9 @@
                             <p>{{ innerList.wareName }}</p>
                           </td>
                           <td width="30%">
-                            {{ innerList.amount | dealString }}
+                            {{ innerList.amount }}
                           </td>
-                          <td width="30%">
-                            &times;{{ innerList.wareQty | dealString }}
-                          </td>
+                          <td width="30%">&times;{{ innerList.wareQty }}</td>
                         </tr>
                       </table>
                     </div>
@@ -135,10 +138,8 @@
                           <p class="o-p2">{{ res.wareSpec }}</p>
                           <p class="o-p3">{{ res.wareId }}</p>
                         </td>
-                        <td width="30%">{{ res.amount | dealString }}</td>
-                        <td width="30%">
-                          &times;{{ res.wareQty | dealString }}
-                        </td>
+                        <td width="30%">{{ res.amount }}</td>
+                        <td width="30%">&times;{{ res.wareQty }}</td>
                       </tr>
                     </table>
                   </div>
@@ -213,11 +214,19 @@ export default {
   filters: {
     // 过滤价格
     dealString(val) {
-      return val.slice(0, -4);
+      if (val.slice) {
+        return val.slice(0, -4);
+      } else {
+        return val;
+      }
     },
     // 过滤时间
     dealTime(val) {
-      return val.slice(0, -5);
+      if (val.slice) {
+        return val.slice(0, -5);
+      } else {
+        return val;
+      }
     },
   },
   created() {
@@ -326,7 +335,7 @@ export default {
     },
     onLoad() {
       if (this.mobile != "") {
-        this.getMemberOrderList(true, this.recodeId, this.keyword);
+        this.getMemberOrderList(true, this.mobile, this.keyword);
       }
     },
     //   获取会员订单列表
@@ -515,10 +524,11 @@ export default {
   }
   // 订单信息
   .order {
-    margin: 5px 0;
+    margin: 10px auto;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    width: 80%;
     .o-head {
       border-bottom: 1px dashed #eeeeeec7;
       font-size: 10px;
